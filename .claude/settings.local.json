@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\" -l \"C:/Users/simao/PROJETOS/PROJECTS/laravel-service-desk/src/Mail/EmailParser.php\")",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\" -l \"C:/Users/simao/PROJETOS/PROJECTS/laravel-service-desk/src/Mail/ThreadResolver.php\")",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\" -l \"C:/Users/simao/PROJETOS/PROJECTS/laravel-service-desk/src/Mail/Drivers/ImapDriver.php\")",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\":*)",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\" -l \"C:/Users/simao/PROJETOS/PROJECTS/laravel-service-desk/src/Mail/Drivers/SendGridDriver.php\")",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\" -l \"C:/Users/simao/PROJETOS/PROJECTS/laravel-service-desk/src/Mail/Drivers/ResendDriver.php\")",
+      "Bash(\"/c/Users/simao/.config/herd/bin/php.bat\" -l \"C:/Users/simao/PROJETOS/PROJECTS/laravel-service-desk/src/Mail/Drivers/PostmarkDriver.php\")",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+{
+    "name": "jeffersongoncalves/laravel-service-desk",
+    "description": "Complete Service Desk package for Laravel with Tickets, SLA, Knowledge Base, and Service Catalog",
+    "keywords": [
+        "laravel",
+        "service-desk",
+        "helpdesk",
+        "tickets",
+        "sla",
+        "knowledge-base"
+    ],
+    "homepage": "https://github.com/jeffersongoncalves/laravel-service-desk",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jefferson Goncalves",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/events": "^11.0|^12.0",
+        "illuminate/notifications": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "spatie/laravel-package-tools": "^1.14.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.21",
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
+    "suggest": {
+        "webklex/php-imap": "Required for IMAP email polling (^5.0)"
+    },
+    "autoload": {
+        "psr-4": {
+            "JeffersonGoncalves\\ServiceDesk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JeffersonGoncalves\\ServiceDesk\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/pint",
+        "test": "vendor/bin/pest"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JeffersonGoncalves\\ServiceDesk\\ServiceDeskServiceProvider"
+            ],
+            "aliases": {
+                "ServiceDesk": "JeffersonGoncalves\\ServiceDesk\\Facades\\ServiceDesk"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
