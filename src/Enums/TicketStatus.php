@@ -13,7 +13,7 @@ enum TicketStatus: string
 
     public function label(): string
     {
-        return __('service-desk::statuses.'.$this->value);
+        return __('service-desk::service-desk.status.'.$this->value);
     }
 
     /**

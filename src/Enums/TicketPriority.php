@@ -11,7 +11,7 @@ enum TicketPriority: string
 
     public function label(): string
     {
-        return __('service-desk::priorities.'.$this->value);
+        return __('service-desk::service-desk.priority.'.$this->value);
     }
 
     public function numericValue(): int
