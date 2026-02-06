@@ -8,4 +8,9 @@ enum EscalationAction: string
     case Reassign = 'reassign';
     case ChangePriority = 'change_priority';
     case Custom = 'custom';
+
+    public function label(): string
+    {
+        return __('service-desk::service-desk.escalation.action.'.$this->value);
+    }
 }

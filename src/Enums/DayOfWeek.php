@@ -14,14 +14,16 @@ enum DayOfWeek: int
 
     public function label(): string
     {
-        return match ($this) {
-            self::Sunday => 'Sunday',
-            self::Monday => 'Monday',
-            self::Tuesday => 'Tuesday',
-            self::Wednesday => 'Wednesday',
-            self::Thursday => 'Thursday',
-            self::Friday => 'Friday',
-            self::Saturday => 'Saturday',
+        $key = match ($this) {
+            self::Sunday => 'sunday',
+            self::Monday => 'monday',
+            self::Tuesday => 'tuesday',
+            self::Wednesday => 'wednesday',
+            self::Thursday => 'thursday',
+            self::Friday => 'friday',
+            self::Saturday => 'saturday',
         };
+
+        return __('service-desk::service-desk.day_of_week.'.$key);
     }
 }

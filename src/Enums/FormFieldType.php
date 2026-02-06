@@ -17,4 +17,9 @@ enum FormFieldType: string
     case Url = 'url';
     case Tel = 'tel';
     case Toggle = 'toggle';
+
+    public function label(): string
+    {
+        return __('service-desk::service-desk.form_field_type.'.$this->value);
+    }
 }

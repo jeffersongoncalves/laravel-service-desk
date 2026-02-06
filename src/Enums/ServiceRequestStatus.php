@@ -10,4 +10,9 @@ enum ServiceRequestStatus: string
     case InProgress = 'in_progress';
     case Fulfilled = 'fulfilled';
     case Cancelled = 'cancelled';
+
+    public function label(): string
+    {
+        return __('service-desk::service-desk.service_catalog.request_status.'.$this->value);
+    }
 }

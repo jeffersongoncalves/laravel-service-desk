@@ -10,4 +10,9 @@ enum TicketSource: string
     case ServiceRequest = 'service_request';
     case Phone = 'phone';
     case Chat = 'chat';
+
+    public function label(): string
+    {
+        return __('service-desk::service-desk.source.'.$this->value);
+    }
 }

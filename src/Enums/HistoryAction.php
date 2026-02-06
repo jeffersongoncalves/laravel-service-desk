@@ -24,4 +24,9 @@ enum HistoryAction: string
     case Escalated = 'escalated';
     case ServiceRequestLinked = 'service_request_linked';
     case ArticleLinked = 'article_linked';
+
+    public function label(): string
+    {
+        return __('service-desk::service-desk.history_action.'.$this->value);
+    }
 }
