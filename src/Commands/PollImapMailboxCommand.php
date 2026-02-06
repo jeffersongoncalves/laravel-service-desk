@@ -56,7 +56,7 @@ class PollImapMailboxCommand extends Command
 
                 $channel->markPolled();
 
-                $this->info("  Fetched ".count($emails).' email(s).');
+                $this->info('  Fetched '.count($emails).' email(s).');
             } catch (\Throwable $e) {
                 $channel->markError($e->getMessage());
 

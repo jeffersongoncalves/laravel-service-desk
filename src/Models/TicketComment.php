@@ -10,6 +10,23 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 
+/**
+ * @property int $id
+ * @property int $ticket_id
+ * @property string $author_type
+ * @property int $author_id
+ * @property string $body
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\CommentType $type
+ * @property bool $is_internal
+ * @property string|null $email_message_id
+ * @property array|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $author
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketAttachment> $attachments
+ */
 class TicketComment extends Model
 {
     use HasFactory, SoftDeletes;

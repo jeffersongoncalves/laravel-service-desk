@@ -30,6 +30,7 @@ class SendCommentAddedNotification implements ShouldQueue
         $ticketOwner = $ticket->user;
 
         if ($ticketOwner && ! $this->isSameUser($ticketOwner, $comment)) {
+            /** @phpstan-ignore method.notFound */
             $ticketOwner->notify($notification);
         }
 
@@ -54,6 +55,7 @@ class SendCommentAddedNotification implements ShouldQueue
                 continue;
             }
 
+            /** @phpstan-ignore method.notFound */
             $watcherUser->notify($notification);
         }
     }

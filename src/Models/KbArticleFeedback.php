@@ -6,6 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * @property int $id
+ * @property int $article_id
+ * @property string|null $user_type
+ * @property int|null $user_id
+ * @property bool $is_helpful
+ * @property string|null $comment
+ * @property string|null $ip_address
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\KbArticle $article
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $user
+ */
 class KbArticleFeedback extends Model
 {
     public $timestamps = false;

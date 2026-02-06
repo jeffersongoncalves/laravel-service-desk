@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use JeffersonGoncalves\ServiceDesk\Mail\Drivers\SendGridDriver;
-use JeffersonGoncalves\ServiceDesk\Models\EmailChannel;
 use JeffersonGoncalves\ServiceDesk\Mail\EmailParser;
+use JeffersonGoncalves\ServiceDesk\Models\EmailChannel;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 
 class SendGridWebhookController extends Controller

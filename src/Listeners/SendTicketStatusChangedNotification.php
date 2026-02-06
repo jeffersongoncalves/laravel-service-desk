@@ -23,10 +23,12 @@ class SendTicketStatusChangedNotification implements ShouldQueue
             return;
         }
 
-        $user->notify(new TicketStatusChangedNotification(
-            $ticket,
-            $event->oldStatus,
-            $event->newStatus,
-        ));
+        if (method_exists($user, 'notify')) {
+            $user->notify(new TicketStatusChangedNotification(
+                $ticket,
+                $event->oldStatus,
+                $event->newStatus,
+            ));
+        }
     }
 }

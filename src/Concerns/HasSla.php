@@ -3,7 +3,6 @@
 namespace JeffersonGoncalves\ServiceDesk\Concerns;
 
 use JeffersonGoncalves\ServiceDesk\Models\SlaPolicy;
-use JeffersonGoncalves\ServiceDesk\Models\TicketSla;
 use JeffersonGoncalves\ServiceDesk\Services\SlaService;
 
 trait HasSla

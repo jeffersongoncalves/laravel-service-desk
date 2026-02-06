@@ -45,11 +45,11 @@ class EscalationNotification extends Notification implements ShouldQueue
             ->line(__('service-desk::notifications.escalation.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
-                'breach_type' => $this->escalationRule->breach_type?->value ?? $this->escalationRule->breach_type,
-                'action' => $this->escalationRule->action?->value ?? $this->escalationRule->action,
+                'breach_type' => $this->escalationRule->breach_type->value,
+                'action' => $this->escalationRule->action->value,
             ]))
             ->line(__('service-desk::notifications.escalation.priority', [
-                'priority' => $ticket->priority?->label() ?? $ticket->priority?->value ?? '',
+                'priority' => $ticket->priority->label(),
             ]));
     }
 
@@ -64,8 +64,8 @@ class EscalationNotification extends Notification implements ShouldQueue
             'reference_number' => $this->ticket->reference_number,
             'title' => $this->ticket->title,
             'escalation_rule_id' => $this->escalationRule->id,
-            'breach_type' => $this->escalationRule->breach_type?->value ?? $this->escalationRule->breach_type,
-            'action' => $this->escalationRule->action?->value ?? $this->escalationRule->action,
+            'breach_type' => $this->escalationRule->breach_type->value,
+            'action' => $this->escalationRule->action->value,
             'type' => 'escalation',
         ];
     }

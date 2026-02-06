@@ -9,6 +9,33 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property int $category_id
+ * @property int|null $sla_policy_id
+ * @property int|null $department_id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $description
+ * @property string|null $long_description
+ * @property string|null $icon
+ * @property bool $requires_approval
+ * @property string $default_priority
+ * @property int|null $expected_duration_minutes
+ * @property string $visibility
+ * @property bool $is_active
+ * @property int $sort_order
+ * @property array|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\ServiceCategory $category
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy|null $slaPolicy
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Department|null $department
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\ServiceFormField> $formFields
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\ServiceRequest> $requests
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Tag> $tags
+ */
 class Service extends Model
 {
     use HasFactory, SoftDeletes;

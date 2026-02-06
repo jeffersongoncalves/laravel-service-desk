@@ -9,6 +9,25 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int $ticket_id
+ * @property int|null $comment_id
+ * @property string $uploaded_by_type
+ * @property int $uploaded_by_id
+ * @property string $file_name
+ * @property string $file_path
+ * @property string $disk
+ * @property string $mime_type
+ * @property int $file_size
+ * @property array|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\TicketComment|null $comment
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $uploadedBy
+ */
 class TicketAttachment extends Model
 {
     use HasFactory;

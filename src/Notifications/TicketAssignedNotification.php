@@ -45,10 +45,10 @@ class TicketAssignedNotification extends Notification implements ShouldQueue
                 'title' => $ticket->title,
             ]))
             ->line(__('service-desk::notifications.ticket_assigned.priority', [
-                'priority' => $ticket->priority?->label() ?? $ticket->priority?->value ?? '',
+                'priority' => $ticket->priority->label(),
             ]))
             ->line(__('service-desk::notifications.ticket_assigned.department', [
-                'department' => $ticket->department?->name ?? __('service-desk::notifications.not_assigned'),
+                'department' => $ticket->department->name,
             ]))
             ->withSymfonyMessage(function ($message) use ($ticket) {
                 $domain = parse_url(config('app.url', 'http://localhost'), PHP_URL_HOST) ?? 'localhost';
@@ -72,9 +72,9 @@ class TicketAssignedNotification extends Notification implements ShouldQueue
             'ticket_uuid' => $this->ticket->uuid,
             'reference_number' => $this->ticket->reference_number,
             'title' => $this->ticket->title,
-            'status' => $this->ticket->status?->value,
-            'priority' => $this->ticket->priority?->value,
-            'department' => $this->ticket->department?->name,
+            'status' => $this->ticket->status->value,
+            'priority' => $this->ticket->priority->value,
+            'department' => $this->ticket->department->name,
             'type' => 'ticket_assigned',
         ];
     }

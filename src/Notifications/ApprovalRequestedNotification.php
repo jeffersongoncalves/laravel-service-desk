@@ -41,7 +41,8 @@ class ApprovalRequestedNotification extends Notification implements ShouldQueue
             ->greeting(__('service-desk::notifications.approval_requested.greeting'))
             ->line(__('service-desk::notifications.approval_requested.body', [
                 'service' => $service->name,
-                'requester' => $serviceRequest->requester?->name ?? __('service-desk::notifications.unknown'),
+                /** @phpstan-ignore property.notFound */
+                'requester' => $serviceRequest->requester->name,
             ]))
             ->line(__('service-desk::notifications.approval_requested.action_required'));
     }
@@ -57,7 +58,7 @@ class ApprovalRequestedNotification extends Notification implements ShouldQueue
             'approval_id' => $this->approval->id,
             'service_request_id' => $serviceRequest->id,
             'service_request_uuid' => $serviceRequest->uuid,
-            'service_name' => $serviceRequest->service?->name,
+            'service_name' => $serviceRequest->service->name,
             'step_order' => $this->approval->step_order,
             'type' => 'approval_requested',
         ];

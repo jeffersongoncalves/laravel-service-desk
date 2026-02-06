@@ -48,10 +48,10 @@ class CloseStaleTicketsCommand extends Command
 
         foreach ($tickets as $ticket) {
             if ($dryRun) {
-                $this->line("  Would close: #{$ticket->reference_number} - {$ticket->subject}");
+                $this->line("  Would close: #{$ticket->reference_number} - {$ticket->title}");
             } else {
                 $ticketService->close($ticket);
-                $this->line("  Closed: #{$ticket->reference_number} - {$ticket->subject}");
+                $this->line("  Closed: #{$ticket->reference_number} - {$ticket->title}");
             }
         }
 

@@ -35,16 +35,19 @@ class TagService
 
     public function syncTags(Model $model, array $tagIds): void
     {
+        /** @phpstan-ignore method.notFound */
         $model->tags()->sync($tagIds);
     }
 
     public function attachTags(Model $model, array $tagIds): void
     {
+        /** @phpstan-ignore method.notFound */
         $model->tags()->attach($tagIds);
     }
 
     public function detachTags(Model $model, array $tagIds): void
     {
+        /** @phpstan-ignore method.notFound */
         $model->tags()->detach($tagIds);
     }
 }

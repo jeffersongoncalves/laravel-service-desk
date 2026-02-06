@@ -10,6 +10,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Enums\ServiceRequestStatus;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int $service_id
+ * @property int|null $ticket_id
+ * @property string $requester_type
+ * @property int $requester_id
+ * @property array $form_data
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\ServiceRequestStatus $status
+ * @property string|null $notes
+ * @property array|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Service $service
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket|null $ticket
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $requester
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\ServiceRequestApproval> $approvals
+ */
 class ServiceRequest extends Model
 {
     use SoftDeletes;

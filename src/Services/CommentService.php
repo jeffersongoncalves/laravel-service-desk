@@ -28,6 +28,7 @@ class CommentService
     public function addSystemComment(Ticket $ticket, string $body, array $options = []): TicketComment
     {
         return DB::transaction(function () use ($ticket, $body, $options) {
+            /** @var TicketComment $comment */
             $comment = $ticket->comments()->create([
                 'author_type' => config('service-desk.models.operator'),
                 'author_id' => 0,
@@ -45,6 +46,7 @@ class CommentService
     public function addComment(Ticket $ticket, Model $author, string $body, CommentType $type, array $options = []): TicketComment
     {
         return DB::transaction(function () use ($ticket, $author, $body, $type, $options) {
+            /** @var TicketComment $comment */
             $comment = $ticket->comments()->create([
                 'author_type' => $author->getMorphClass(),
                 'author_id' => $author->getKey(),

@@ -49,7 +49,7 @@ class SlaNearBreachNotification extends Notification implements ShouldQueue
                 'minutes' => $this->minutesRemaining,
             ]))
             ->line(__('service-desk::notifications.sla_near_breach.priority', [
-                'priority' => $ticket->priority?->label() ?? $ticket->priority?->value ?? '',
+                'priority' => $ticket->priority->label(),
             ]));
     }
 

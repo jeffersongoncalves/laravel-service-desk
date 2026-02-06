@@ -23,6 +23,8 @@ class SendTicketCreatedNotification implements ShouldQueue
             return;
         }
 
-        $user->notify(new TicketCreatedNotification($ticket));
+        if (method_exists($user, 'notify')) {
+            $user->notify(new TicketCreatedNotification($ticket));
+        }
     }
 }

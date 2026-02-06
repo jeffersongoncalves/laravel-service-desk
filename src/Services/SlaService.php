@@ -31,8 +31,9 @@ class SlaService
             return null;
         }
 
+        /** @var \JeffersonGoncalves\ServiceDesk\Models\SlaTarget|null $target */
         $target = $policy->targets()
-            ->where('priority', $ticket->priority?->value ?? $ticket->priority)
+            ->where('priority', $ticket->priority->value)
             ->first();
 
         if (! $target) {
@@ -58,7 +59,7 @@ class SlaService
             ['ticket_id' => $ticket->id],
             [
                 'sla_policy_id' => $policy->id,
-                'priority_at_assignment' => $ticket->priority?->value ?? $ticket->priority,
+                'priority_at_assignment' => $ticket->priority->value,
                 'first_response_due_at' => $firstResponseDueAt,
                 'next_response_due_at' => $nextResponseDueAt,
                 'resolution_due_at' => $resolutionDueAt,
@@ -235,14 +236,14 @@ class SlaService
         }
 
         if (! empty($conditions['priorities'])) {
-            $ticketPriority = $ticket->priority?->value ?? $ticket->priority;
+            $ticketPriority = $ticket->priority->value;
             if (! in_array($ticketPriority, $conditions['priorities'])) {
                 return false;
             }
         }
 
         if (! empty($conditions['sources'])) {
-            $ticketSource = $ticket->source?->value ?? $ticket->source;
+            $ticketSource = $ticket->source instanceof \BackedEnum ? $ticket->source->value : $ticket->source;
             if (! in_array($ticketSource, $conditions['sources'])) {
                 return false;
             }

@@ -14,6 +14,51 @@ use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $reference_number
+ * @property int $department_id
+ * @property int|null $category_id
+ * @property string $user_type
+ * @property int $user_id
+ * @property string|null $assigned_to_type
+ * @property int|null $assigned_to_id
+ * @property string $title
+ * @property string $description
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\TicketStatus $status
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\TicketPriority $priority
+ * @property string $source
+ * @property string|null $email_message_id
+ * @property int|null $sla_policy_id
+ * @property \Illuminate\Support\Carbon|null $first_response_due_at
+ * @property \Illuminate\Support\Carbon|null $next_response_due_at
+ * @property \Illuminate\Support\Carbon|null $resolution_due_at
+ * @property \Illuminate\Support\Carbon|null $first_responded_at
+ * @property \Illuminate\Support\Carbon|null $resolved_at
+ * @property bool $first_response_breached
+ * @property bool $resolution_breached
+ * @property \Illuminate\Support\Carbon|null $closed_at
+ * @property \Illuminate\Support\Carbon|null $due_at
+ * @property \Illuminate\Support\Carbon|null $last_replied_at
+ * @property array|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $user
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $assignedTo
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Department $department
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Category|null $category
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketComment> $comments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketAttachment> $attachments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketHistory> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketWatcher> $watchers
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy|null $slaPolicy
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\TicketSla|null $ticketSla
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Tag> $tags
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticle> $linkedArticles
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\ServiceRequest|null $serviceRequest
+ */
 class Ticket extends Model
 {
     use HasFactory, SoftDeletes;

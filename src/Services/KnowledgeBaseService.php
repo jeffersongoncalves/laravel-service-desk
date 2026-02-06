@@ -120,6 +120,7 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
 
     public function addFeedback(KbArticle $article, bool $isHelpful, ?Model $user = null, ?string $comment = null, ?string $ipAddress = null): KbArticleFeedback
     {
+        /** @var KbArticleFeedback $feedback */
         $feedback = $article->feedback()->create([
             'user_type' => $user?->getMorphClass(),
             'user_id' => $user?->getKey(),

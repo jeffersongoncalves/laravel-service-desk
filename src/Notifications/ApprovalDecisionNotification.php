@@ -63,7 +63,7 @@ class ApprovalDecisionNotification extends Notification implements ShouldQueue
             'approval_id' => $this->approval->id,
             'service_request_id' => $serviceRequest->id,
             'service_request_uuid' => $serviceRequest->uuid,
-            'service_name' => $serviceRequest->service?->name,
+            'service_name' => $serviceRequest->service->name,
             'status' => $this->approval->status->value,
             'comment' => $this->approval->comment,
             'type' => 'approval_decision',

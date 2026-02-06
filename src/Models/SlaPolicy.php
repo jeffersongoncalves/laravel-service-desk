@@ -8,6 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $description
+ * @property int|null $business_hours_schedule_id
+ * @property array|null $conditions
+ * @property bool $is_active
+ * @property int $sort_order
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursSchedule|null $businessHoursSchedule
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\SlaTarget> $targets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\EscalationRule> $escalationRules
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Ticket> $tickets
+ */
 class SlaPolicy extends Model
 {
     use SoftDeletes;

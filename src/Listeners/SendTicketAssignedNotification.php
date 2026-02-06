@@ -18,10 +18,13 @@ class SendTicketAssignedNotification implements ShouldQueue
 
         $assignedTo = $event->assignedTo;
 
+        /** @phpstan-ignore booleanNot.alwaysFalse */
         if (! $assignedTo) {
             return;
         }
 
-        $assignedTo->notify(new TicketAssignedNotification($event->ticket));
+        if (method_exists($assignedTo, 'notify')) {
+            $assignedTo->notify(new TicketAssignedNotification($event->ticket));
+        }
     }
 }

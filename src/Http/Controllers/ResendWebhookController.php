@@ -8,8 +8,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use JeffersonGoncalves\ServiceDesk\Mail\Drivers\ResendDriver;
-use JeffersonGoncalves\ServiceDesk\Models\EmailChannel;
 use JeffersonGoncalves\ServiceDesk\Mail\EmailParser;
+use JeffersonGoncalves\ServiceDesk\Models\EmailChannel;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 
 class ResendWebhookController extends Controller

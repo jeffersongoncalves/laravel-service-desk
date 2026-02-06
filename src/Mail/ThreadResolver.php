@@ -98,13 +98,13 @@ class ThreadResolver
         $prefix = config('service-desk.ticket.reference_prefix', 'SD');
 
         // Match patterns like [SD-00001], SD-00001, [SD-12345], etc.
-        $pattern = '/\[?' . preg_quote($prefix, '/') . '-(\d+)\]?/i';
+        $pattern = '/\[?'.preg_quote($prefix, '/').'-(\d+)\]?/i';
 
         if (! preg_match($pattern, $subject, $matches)) {
             return null;
         }
 
-        $referenceNumber = $prefix . '-' . $matches[1];
+        $referenceNumber = $prefix.'-'.$matches[1];
 
         $ticket = Ticket::where('reference_number', $referenceNumber)->first();
 

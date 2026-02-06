@@ -77,7 +77,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
             'reference_number' => $this->ticket->reference_number,
             'title' => $this->ticket->title,
             'comment_id' => $this->comment->id,
-            'author_name' => $this->comment->author?->name ?? null,
+            'author_name' => $this->comment->author->name ?? null,
             'type' => 'new_comment',
         ];
     }

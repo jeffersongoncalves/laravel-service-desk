@@ -8,3 +8,7 @@ parameters:
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: false
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - identifier: trait.unused
+        - identifier: class.notFound

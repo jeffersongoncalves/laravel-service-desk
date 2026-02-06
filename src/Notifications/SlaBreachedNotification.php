@@ -47,7 +47,7 @@ class SlaBreachedNotification extends Notification implements ShouldQueue
                 'breach_type' => $this->breachType,
             ]))
             ->line(__('service-desk::notifications.sla_breached.priority', [
-                'priority' => $ticket->priority?->label() ?? $ticket->priority?->value ?? '',
+                'priority' => $ticket->priority->label(),
             ]));
     }
 

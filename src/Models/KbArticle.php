@@ -15,6 +15,38 @@ use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Enums\ArticleStatus;
 use JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int $category_id
+ * @property string $title
+ * @property string $slug
+ * @property string $content
+ * @property string|null $excerpt
+ * @property string $author_type
+ * @property int $author_id
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\ArticleStatus $status
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility $visibility
+ * @property string|null $seo_title
+ * @property string|null $seo_description
+ * @property string|null $seo_keywords
+ * @property int $view_count
+ * @property int $helpful_count
+ * @property int $not_helpful_count
+ * @property \Illuminate\Support\Carbon|null $published_at
+ * @property int $current_version
+ * @property array|null $metadata
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\KbCategory $category
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $author
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticleVersion> $versions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticleFeedback> $feedback
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticle> $relatedArticles
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Ticket> $linkedTickets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Tag> $tags
+ */
 class KbArticle extends Model
 {
     use HasFactory, SoftDeletes;

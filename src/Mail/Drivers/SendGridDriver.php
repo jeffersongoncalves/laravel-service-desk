@@ -81,7 +81,7 @@ class SendGridDriver implements EmailDriver
         foreach ($lines as $line) {
             // Continuation line (starts with whitespace)
             if (preg_match('/^\s+/', $line) && $currentKey !== null) {
-                $currentValue .= ' ' . trim($line);
+                $currentValue .= ' '.trim($line);
 
                 continue;
             }

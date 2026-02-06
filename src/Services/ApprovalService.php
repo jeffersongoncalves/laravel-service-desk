@@ -64,6 +64,7 @@ class ApprovalService implements ApprovalWorkflow
 
     public function getNextPendingApproval(ServiceRequest $serviceRequest): ?ServiceRequestApproval
     {
+        /** @var ServiceRequestApproval|null */
         return $serviceRequest->approvals()
             ->where('status', ApprovalStatus::Pending)
             ->orderBy('step_order')

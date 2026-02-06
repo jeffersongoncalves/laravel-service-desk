@@ -7,7 +7,7 @@ use JeffersonGoncalves\ServiceDesk\Contracts\BusinessHoursCalculator;
 use JeffersonGoncalves\ServiceDesk\Contracts\SlaCalculator;
 use JeffersonGoncalves\ServiceDesk\Models\BusinessHoursSchedule;
 
-class BusinessHoursService implements SlaCalculator, BusinessHoursCalculator
+class BusinessHoursService implements BusinessHoursCalculator, SlaCalculator
 {
     public function calculateDueDate(Carbon $startTime, int $minutes, ?BusinessHoursSchedule $schedule = null): Carbon
     {
@@ -58,6 +58,7 @@ class BusinessHoursService implements SlaCalculator, BusinessHoursCalculator
             }
 
             foreach ($daySlots as $slot) {
+                /** @var \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursTimeSlot $slot */
                 if ($remainingMinutes <= 0) {
                     break;
                 }
@@ -115,6 +116,7 @@ class BusinessHoursService implements SlaCalculator, BusinessHoursCalculator
         $currentTime = $localTime->format('H:i:s');
 
         foreach ($slots as $slot) {
+            /** @var \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursTimeSlot $slot */
             if ($currentTime >= $slot->start_time && $currentTime < $slot->end_time) {
                 return true;
             }

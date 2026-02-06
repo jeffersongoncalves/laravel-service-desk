@@ -7,6 +7,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use JeffersonGoncalves\ServiceDesk\Enums\ApprovalStatus;
 
+/**
+ * @property int $id
+ * @property int $service_request_id
+ * @property string $approver_type
+ * @property int $approver_id
+ * @property \JeffersonGoncalves\ServiceDesk\Enums\ApprovalStatus $status
+ * @property string|null $comment
+ * @property int $step_order
+ * @property \Illuminate\Support\Carbon|null $decided_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\ServiceRequest $serviceRequest
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $approver
+ */
 class ServiceRequestApproval extends Model
 {
     protected $table = 'service_desk_service_request_approvals';

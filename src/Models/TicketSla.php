@@ -6,6 +6,26 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $ticket_id
+ * @property int $sla_policy_id
+ * @property string $priority_at_assignment
+ * @property \Illuminate\Support\Carbon|null $first_response_due_at
+ * @property \Illuminate\Support\Carbon|null $next_response_due_at
+ * @property \Illuminate\Support\Carbon|null $resolution_due_at
+ * @property \Illuminate\Support\Carbon|null $first_responded_at
+ * @property \Illuminate\Support\Carbon|null $resolved_at
+ * @property bool $first_response_breached
+ * @property bool $next_response_breached
+ * @property bool $resolution_breached
+ * @property int $paused_minutes
+ * @property \Illuminate\Support\Carbon|null $paused_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
+ * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy $slaPolicy
+ */
 class TicketSla extends Model
 {
     protected $table = 'service_desk_ticket_sla';
