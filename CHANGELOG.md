@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.4] - 2026-02-07
+
+### Fixed
+
+- Fix `morphTo()` relationship signature in `Ticket::assignedTo()` and `TicketAttachment::uploadedBy()` to use camelCase method name instead of snake_case
+
 ## [v1.0.3] - 2026-02-07
 
 ### Added
@@ -53,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Static Analysis** - PHPStan/Larastan level configuration
 - **Code Style** - Laravel Pint formatting
 
+[v1.0.4]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.3...v1.0.4
 [v1.0.3]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.2...v1.0.3
 [v1.0.2]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/1.0.1...v1.0.2
 [1.0.1]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/1.0.0...1.0.1

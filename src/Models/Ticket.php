@@ -147,7 +147,7 @@ class Ticket extends Model
 
     public function assignedTo(): MorphTo
     {
-        return $this->morphTo('assigned_to');
+        return $this->morphTo('assignedTo');
     }
 
     public function department(): BelongsTo
