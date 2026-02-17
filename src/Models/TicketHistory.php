@@ -56,6 +56,7 @@ class TicketHistory extends Model
         });
     }
 
+    /** @return BelongsTo<Ticket, $this> */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');

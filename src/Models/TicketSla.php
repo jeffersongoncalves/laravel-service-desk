@@ -59,11 +59,13 @@ class TicketSla extends Model
         'paused_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<Ticket, $this> */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
+    /** @return BelongsTo<SlaPolicy, $this> */
     public function slaPolicy(): BelongsTo
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');

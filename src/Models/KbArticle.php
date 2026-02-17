@@ -94,6 +94,7 @@ class KbArticle extends Model
         });
     }
 
+    /** @return BelongsTo<KbCategory, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(KbCategory::class, 'category_id');
@@ -104,37 +105,44 @@ class KbArticle extends Model
         return $this->morphTo('author');
     }
 
+    /** @return HasMany<KbArticleVersion, $this> */
     public function versions(): HasMany
     {
         return $this->hasMany(KbArticleVersion::class, 'article_id');
     }
 
+    /** @return HasMany<KbArticleFeedback, $this> */
     public function feedback(): HasMany
     {
         return $this->hasMany(KbArticleFeedback::class, 'article_id');
     }
 
+    /** @return BelongsToMany<KbArticle, $this> */
     public function relatedArticles(): BelongsToMany
     {
         return $this->belongsToMany(KbArticle::class, 'service_desk_kb_article_relations', 'article_id', 'related_article_id');
     }
 
+    /** @return BelongsToMany<Ticket, $this> */
     public function linkedTickets(): BelongsToMany
     {
         return $this->belongsToMany(Ticket::class, 'service_desk_kb_article_ticket', 'article_id', 'ticket_id')
             ->withTimestamps();
     }
 
+    /** @return MorphToMany<Tag, $this> */
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable', 'service_desk_taggables');
     }
 
+    /** @param Builder<static> $query */
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', ArticleStatus::Published);
     }
 
+    /** @param Builder<static> $query */
     public function scopeByVisibility(Builder $query, ArticleVisibility $visibility): Builder
     {
         return $query->where('visibility', $visibility);

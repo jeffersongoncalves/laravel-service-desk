@@ -41,6 +41,7 @@ class ServiceRequestApproval extends Model
         'step_order' => 'integer',
     ];
 
+    /** @return BelongsTo<ServiceRequest, $this> */
     public function serviceRequest(): BelongsTo
     {
         return $this->belongsTo(ServiceRequest::class, 'service_request_id');

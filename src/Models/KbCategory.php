@@ -48,31 +48,37 @@ class KbCategory extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<KbCategory, $this> */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(KbCategory::class, 'parent_id');
     }
 
+    /** @return HasMany<KbCategory, $this> */
     public function children(): HasMany
     {
         return $this->hasMany(KbCategory::class, 'parent_id');
     }
 
+    /** @return HasMany<KbArticle, $this> */
     public function articles(): HasMany
     {
         return $this->hasMany(KbArticle::class, 'category_id');
     }
 
+    /** @param Builder<static> $query */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
+    /** @param Builder<static> $query */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');
     }
 
+    /** @param Builder<static> $query */
     public function scopeRoot(Builder $query): Builder
     {
         return $query->whereNull('parent_id');

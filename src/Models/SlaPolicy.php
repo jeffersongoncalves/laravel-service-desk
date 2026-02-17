@@ -45,31 +45,37 @@ class SlaPolicy extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<BusinessHoursSchedule, $this> */
     public function businessHoursSchedule(): BelongsTo
     {
         return $this->belongsTo(BusinessHoursSchedule::class, 'business_hours_schedule_id');
     }
 
+    /** @return HasMany<SlaTarget, $this> */
     public function targets(): HasMany
     {
         return $this->hasMany(SlaTarget::class, 'sla_policy_id');
     }
 
+    /** @return HasMany<EscalationRule, $this> */
     public function escalationRules(): HasMany
     {
         return $this->hasMany(EscalationRule::class, 'sla_policy_id');
     }
 
+    /** @return HasMany<Ticket, $this> */
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'sla_policy_id');
     }
 
+    /** @param Builder<static> $query */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
+    /** @param Builder<static> $query */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');

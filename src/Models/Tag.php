@@ -31,16 +31,19 @@ class Tag extends Model
         'description',
     ];
 
+    /** @return MorphToMany<Ticket, $this> */
     public function tickets(): MorphToMany
     {
         return $this->morphedByMany(Ticket::class, 'taggable', 'service_desk_taggables');
     }
 
+    /** @return MorphToMany<KbArticle, $this> */
     public function articles(): MorphToMany
     {
         return $this->morphedByMany(KbArticle::class, 'taggable', 'service_desk_taggables');
     }
 
+    /** @return MorphToMany<Service, $this> */
     public function services(): MorphToMany
     {
         return $this->morphedByMany(Service::class, 'taggable', 'service_desk_taggables');

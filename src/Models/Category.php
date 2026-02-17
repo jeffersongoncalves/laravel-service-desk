@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,37 +47,44 @@ class Category extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<Department, $this> */
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
 
+    /** @return BelongsTo<Category, $this> */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
 
+    /** @return HasMany<Category, $this> */
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
     }
 
+    /** @return HasMany<Ticket, $this> */
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'category_id');
     }
 
-    public function scopeActive($query)
+    /** @param Builder<static> $query */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<static> $query */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
 
-    public function scopeRoot($query)
+    /** @param Builder<static> $query */
+    public function scopeRoot(Builder $query): Builder
     {
         return $query->whereNull('parent_id');
     }

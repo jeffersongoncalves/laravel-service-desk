@@ -2,9 +2,11 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -150,73 +152,87 @@ class Ticket extends Model
         return $this->morphTo('assignedTo');
     }
 
+    /** @return BelongsTo<Department, $this> */
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
 
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    /** @return HasMany<TicketComment, $this> */
     public function comments(): HasMany
     {
         return $this->hasMany(TicketComment::class, 'ticket_id');
     }
 
+    /** @return HasMany<TicketAttachment, $this> */
     public function attachments(): HasMany
     {
         return $this->hasMany(TicketAttachment::class, 'ticket_id');
     }
 
+    /** @return HasMany<TicketHistory, $this> */
     public function history(): HasMany
     {
         return $this->hasMany(TicketHistory::class, 'ticket_id');
     }
 
+    /** @return HasMany<TicketWatcher, $this> */
     public function watchers(): HasMany
     {
         return $this->hasMany(TicketWatcher::class, 'ticket_id');
     }
 
+    /** @return BelongsTo<SlaPolicy, $this> */
     public function slaPolicy(): BelongsTo
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
     }
 
+    /** @return HasOne<TicketSla, $this> */
     public function ticketSla(): HasOne
     {
         return $this->hasOne(TicketSla::class, 'ticket_id');
     }
 
+    /** @return MorphToMany<Tag, $this> */
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable', 'service_desk_taggables');
     }
 
-    public function linkedArticles()
+    /** @return BelongsToMany<KbArticle, $this> */
+    public function linkedArticles(): BelongsToMany
     {
         return $this->belongsToMany(KbArticle::class, 'service_desk_kb_article_ticket', 'ticket_id', 'article_id')
             ->withTimestamps();
     }
 
+    /** @return HasOne<ServiceRequest, $this> */
     public function serviceRequest(): HasOne
     {
         return $this->hasOne(ServiceRequest::class, 'ticket_id');
     }
 
-    public function scopeByStatus($query, TicketStatus $status)
+    /** @param Builder<static> $query */
+    public function scopeByStatus(Builder $query, TicketStatus $status): Builder
     {
         return $query->where('status', $status);
     }
 
-    public function scopeByPriority($query, TicketPriority $priority)
+    /** @param Builder<static> $query */
+    public function scopeByPriority(Builder $query, TicketPriority $priority): Builder
     {
         return $query->where('priority', $priority);
     }
 
-    public function scopeOpen($query)
+    /** @param Builder<static> $query */
+    public function scopeOpen(Builder $query): Builder
     {
         return $query->whereNotIn('status', [
             TicketStatus::Closed->value,
@@ -224,7 +240,8 @@ class Ticket extends Model
         ]);
     }
 
-    public function scopeClosed($query)
+    /** @param Builder<static> $query */
+    public function scopeClosed(Builder $query): Builder
     {
         return $query->whereIn('status', [
             TicketStatus::Closed->value,
@@ -232,7 +249,8 @@ class Ticket extends Model
         ]);
     }
 
-    public function scopeOverdue($query)
+    /** @param Builder<static> $query */
+    public function scopeOverdue(Builder $query): Builder
     {
         return $query->whereNotNull('due_at')
             ->where('due_at', '<', now())
@@ -242,7 +260,8 @@ class Ticket extends Model
             ]);
     }
 
-    public function scopeUnassigned($query)
+    /** @param Builder<static> $query */
+    public function scopeUnassigned(Builder $query): Builder
     {
         return $query->whereNull('assigned_to_id');
     }

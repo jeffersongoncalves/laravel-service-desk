@@ -44,16 +44,19 @@ class EscalationRule extends Model
         'action' => EscalationAction::class,
     ];
 
+    /** @return BelongsTo<SlaPolicy, $this> */
     public function slaPolicy(): BelongsTo
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
     }
 
+    /** @param Builder<static> $query */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
+    /** @param Builder<static> $query */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');

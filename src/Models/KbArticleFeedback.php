@@ -39,6 +39,7 @@ class KbArticleFeedback extends Model
         'created_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<KbArticle, $this> */
     public function article(): BelongsTo
     {
         return $this->belongsTo(KbArticle::class, 'article_id');

@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,42 +68,50 @@ class Service extends Model
         'metadata' => 'array',
     ];
 
+    /** @return BelongsTo<ServiceCategory, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(ServiceCategory::class, 'category_id');
     }
 
+    /** @return BelongsTo<SlaPolicy, $this> */
     public function slaPolicy(): BelongsTo
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
     }
 
+    /** @return BelongsTo<Department, $this> */
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
 
+    /** @return HasMany<ServiceFormField, $this> */
     public function formFields(): HasMany
     {
         return $this->hasMany(ServiceFormField::class, 'service_id');
     }
 
+    /** @return HasMany<ServiceRequest, $this> */
     public function requests(): HasMany
     {
         return $this->hasMany(ServiceRequest::class, 'service_id');
     }
 
+    /** @return MorphToMany<Tag, $this> */
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable', 'service_desk_taggables');
     }
 
-    public function scopeActive($query)
+    /** @param Builder<static> $query */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<static> $query */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }

@@ -31,6 +31,7 @@ class BusinessHoursTimeSlot extends Model
         'day_of_week' => DayOfWeek::class,
     ];
 
+    /** @return BelongsTo<BusinessHoursSchedule, $this> */
     public function schedule(): BelongsTo
     {
         return $this->belongsTo(BusinessHoursSchedule::class, 'schedule_id');

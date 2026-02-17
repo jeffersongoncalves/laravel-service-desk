@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,22 +39,26 @@ class CannedResponse extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<Department, $this> */
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
 
-    public function scopeActive($query)
+    /** @param Builder<static> $query */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<static> $query */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('title');
     }
 
-    public function scopeForDepartment($query, ?int $departmentId)
+    /** @param Builder<static> $query */
+    public function scopeForDepartment(Builder $query, ?int $departmentId): Builder
     {
         return $query->where(function ($q) use ($departmentId) {
             $q->whereNull('department_id');

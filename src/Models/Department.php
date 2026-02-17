@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -43,32 +44,38 @@ class Department extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return HasMany<Category, $this> */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class, 'department_id');
     }
 
+    /** @return HasMany<Ticket, $this> */
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'department_id');
     }
 
+    /** @return HasMany<CannedResponse, $this> */
     public function cannedResponses(): HasMany
     {
         return $this->hasMany(CannedResponse::class, 'department_id');
     }
 
+    /** @return HasMany<EmailChannel, $this> */
     public function emailChannels(): HasMany
     {
         return $this->hasMany(EmailChannel::class, 'department_id');
     }
 
-    public function scopeActive($query)
+    /** @param Builder<static> $query */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<static> $query */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }

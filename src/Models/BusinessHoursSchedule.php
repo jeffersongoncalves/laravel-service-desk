@@ -36,26 +36,31 @@ class BusinessHoursSchedule extends Model
         'is_active' => 'boolean',
     ];
 
+    /** @return HasMany<BusinessHoursTimeSlot, $this> */
     public function timeSlots(): HasMany
     {
         return $this->hasMany(BusinessHoursTimeSlot::class, 'schedule_id');
     }
 
+    /** @return HasMany<Holiday, $this> */
     public function holidays(): HasMany
     {
         return $this->hasMany(Holiday::class, 'schedule_id');
     }
 
+    /** @return HasMany<SlaPolicy, $this> */
     public function slaPolicies(): HasMany
     {
         return $this->hasMany(SlaPolicy::class, 'business_hours_schedule_id');
     }
 
+    /** @param Builder<static> $query */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
+    /** @param Builder<static> $query */
     public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);

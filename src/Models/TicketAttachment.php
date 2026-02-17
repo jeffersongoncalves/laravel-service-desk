@@ -66,11 +66,13 @@ class TicketAttachment extends Model
         });
     }
 
+    /** @return BelongsTo<Ticket, $this> */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
+    /** @return BelongsTo<TicketComment, $this> */
     public function comment(): BelongsTo
     {
         return $this->belongsTo(TicketComment::class, 'comment_id');

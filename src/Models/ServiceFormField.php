@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use JeffersonGoncalves\ServiceDesk\Enums\FormFieldType;
@@ -52,12 +53,14 @@ class ServiceFormField extends Model
         'metadata' => 'array',
     ];
 
+    /** @return BelongsTo<Service, $this> */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class, 'service_id');
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<static> $query */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }

@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -50,6 +51,7 @@ class TicketComment extends Model
         'metadata' => 'array',
     ];
 
+    /** @return BelongsTo<Ticket, $this> */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');
@@ -60,27 +62,32 @@ class TicketComment extends Model
         return $this->morphTo('author');
     }
 
+    /** @return HasMany<TicketAttachment, $this> */
     public function attachments(): HasMany
     {
         return $this->hasMany(TicketAttachment::class, 'comment_id');
     }
 
-    public function scopePublic($query)
+    /** @param Builder<static> $query */
+    public function scopePublic(Builder $query): Builder
     {
         return $query->where('is_internal', false);
     }
 
-    public function scopeInternal($query)
+    /** @param Builder<static> $query */
+    public function scopeInternal(Builder $query): Builder
     {
         return $query->where('is_internal', true);
     }
 
-    public function scopeReplies($query)
+    /** @param Builder<static> $query */
+    public function scopeReplies(Builder $query): Builder
     {
         return $query->where('type', CommentType::Reply);
     }
 
-    public function scopeNotes($query)
+    /** @param Builder<static> $query */
+    public function scopeNotes(Builder $query): Builder
     {
         return $query->where('type', CommentType::Note);
     }

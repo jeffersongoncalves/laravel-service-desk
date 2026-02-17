@@ -31,6 +31,7 @@ class Holiday extends Model
         'is_recurring' => 'boolean',
     ];
 
+    /** @return BelongsTo<BusinessHoursSchedule, $this> */
     public function schedule(): BelongsTo
     {
         return $this->belongsTo(BusinessHoursSchedule::class, 'schedule_id');

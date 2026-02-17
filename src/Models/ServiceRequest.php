@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -62,11 +63,13 @@ class ServiceRequest extends Model
         });
     }
 
+    /** @return BelongsTo<Service, $this> */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class, 'service_id');
     }
 
+    /** @return BelongsTo<Ticket, $this> */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');
@@ -77,12 +80,14 @@ class ServiceRequest extends Model
         return $this->morphTo('requester');
     }
 
+    /** @return HasMany<ServiceRequestApproval, $this> */
     public function approvals(): HasMany
     {
         return $this->hasMany(ServiceRequestApproval::class, 'service_request_id');
     }
 
-    public function scopeByStatus($query, ServiceRequestStatus $status)
+    /** @param Builder<static> $query */
+    public function scopeByStatus(Builder $query, ServiceRequestStatus $status): Builder
     {
         return $query->where('status', $status);
     }

@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,32 +48,38 @@ class ServiceCategory extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<ServiceCategory, $this> */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(ServiceCategory::class, 'parent_id');
     }
 
+    /** @return HasMany<ServiceCategory, $this> */
     public function children(): HasMany
     {
         return $this->hasMany(ServiceCategory::class, 'parent_id');
     }
 
+    /** @return HasMany<Service, $this> */
     public function services(): HasMany
     {
         return $this->hasMany(Service::class, 'category_id');
     }
 
-    public function scopeActive($query)
+    /** @param Builder<static> $query */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<static> $query */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
 
-    public function scopeRoot($query)
+    /** @param Builder<static> $query */
+    public function scopeRoot(Builder $query): Builder
     {
         return $query->whereNull('parent_id');
     }

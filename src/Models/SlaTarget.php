@@ -28,6 +28,7 @@ class SlaTarget extends Model
         'resolution_time',
     ];
 
+    /** @return BelongsTo<SlaPolicy, $this> */
     public function slaPolicy(): BelongsTo
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
