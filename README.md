@@ -1,3 +1,9 @@
+<div class="filament-hidden">
+
+![Laravel Service Desk](https://raw.githubusercontent.com/jeffersongoncalves/laravel-service-desk/main/art/jeffersongoncalves-laravel-service-desk.png)
+
+</div>
+
 # Laravel Service Desk
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffersongoncalves/laravel-service-desk.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/laravel-service-desk)
