@@ -3,11 +3,14 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
 
 /**
  * @property int $id
@@ -19,16 +22,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $visibility
  * @property bool $is_active
  * @property int $sort_order
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\KbCategory|null $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbCategory> $children
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticle> $articles
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read KbCategory|null $parent
+ * @property-read Collection<int, KbCategory> $children
+ * @property-read Collection<int, KbArticle> $articles
  */
 class KbCategory extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_kb_categories';
 

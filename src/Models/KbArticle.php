@@ -3,6 +3,7 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
 use JeffersonGoncalves\ServiceDesk\Enums\ArticleStatus;
 use JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility;
 
@@ -25,31 +28,31 @@ use JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility;
  * @property string|null $excerpt
  * @property string $author_type
  * @property int $author_id
- * @property \JeffersonGoncalves\ServiceDesk\Enums\ArticleStatus $status
- * @property \JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility $visibility
+ * @property ArticleStatus $status
+ * @property ArticleVisibility $visibility
  * @property string|null $seo_title
  * @property string|null $seo_description
  * @property string|null $seo_keywords
  * @property int $view_count
  * @property int $helpful_count
  * @property int $not_helpful_count
- * @property \Illuminate\Support\Carbon|null $published_at
+ * @property Carbon|null $published_at
  * @property int $current_version
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\KbCategory $category
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $author
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticleVersion> $versions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticleFeedback> $feedback
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticle> $relatedArticles
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Ticket> $linkedTickets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Tag> $tags
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read KbCategory $category
+ * @property-read Model|\Eloquent $author
+ * @property-read Collection<int, KbArticleVersion> $versions
+ * @property-read Collection<int, KbArticleFeedback> $feedback
+ * @property-read Collection<int, KbArticle> $relatedArticles
+ * @property-read Collection<int, Ticket> $linkedTickets
+ * @property-read Collection<int, Tag> $tags
  */
 class KbArticle extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_kb_articles';
 
@@ -156,5 +159,10 @@ class KbArticle extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function getSlugSource(): string
+    {
+        return 'title';
     }
 }

@@ -67,6 +67,34 @@ it('can restore a soft deleted department', function () {
     expect(Department::find($department->id))->not->toBeNull();
 });
 
+// ── Slug auto-generation ─────────────────────────────────────────────────────
+
+it('auto-generates slug from name when omitted', function () {
+    $department = Department::create([
+        'name' => 'Comercial',
+        'email' => 'comercial@email.com',
+    ]);
+
+    expect($department->slug)->toBe('comercial');
+});
+
+it('appends a numeric suffix to keep slug unique', function () {
+    $first = Department::create(['name' => 'Comercial']);
+    $second = Department::create(['name' => 'Comercial!']);
+
+    expect($first->slug)->toBe('comercial')
+        ->and($second->slug)->toBe('comercial-2');
+});
+
+it('keeps an explicitly provided slug', function () {
+    $department = Department::create([
+        'name' => 'Comercial',
+        'slug' => 'custom-slug',
+    ]);
+
+    expect($department->slug)->toBe('custom-slug');
+});
+
 // ── Casts ───────────────────────────────────────────────────────────────────
 
 it('casts is_active to boolean', function () {

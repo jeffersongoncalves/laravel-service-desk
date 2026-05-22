@@ -3,12 +3,15 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
 
 /**
  * @property int $id
@@ -27,19 +30,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_active
  * @property int $sort_order
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\ServiceCategory $category
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy|null $slaPolicy
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Department|null $department
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\ServiceFormField> $formFields
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\ServiceRequest> $requests
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Tag> $tags
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read ServiceCategory $category
+ * @property-read SlaPolicy|null $slaPolicy
+ * @property-read Department|null $department
+ * @property-read Collection<int, ServiceFormField> $formFields
+ * @property-read Collection<int, ServiceRequest> $requests
+ * @property-read Collection<int, Tag> $tags
  */
 class Service extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_services';
 

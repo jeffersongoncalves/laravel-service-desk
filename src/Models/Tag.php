@@ -2,9 +2,12 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Carbon;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
 
 /**
  * @property int $id
@@ -12,15 +15,15 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property string $slug
  * @property string|null $color
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Ticket> $tickets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticle> $articles
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Service> $services
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Ticket> $tickets
+ * @property-read Collection<int, KbArticle> $articles
+ * @property-read Collection<int, Service> $services
  */
 class Tag extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
 
     protected $table = 'service_desk_tags';
 
