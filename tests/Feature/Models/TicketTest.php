@@ -13,7 +13,7 @@ use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->department = Department::create(['name' => 'IT Support', 'slug' => 'it-support']);
+    $this->department = Department::factory()->create();
     $this->user = User::create(['name' => 'John Doe', 'email' => 'john@example.com']);
 });
 

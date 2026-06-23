@@ -22,7 +22,7 @@ use JeffersonGoncalves\ServiceDesk\ServiceDeskManager;
  * @method static \JeffersonGoncalves\ServiceDesk\Services\DepartmentService departments()
  * @method static \JeffersonGoncalves\ServiceDesk\Services\AttachmentService attachments()
  *
- * @see \JeffersonGoncalves\ServiceDesk\ServiceDeskManager
+ * @see ServiceDeskManager
  */
 class ServiceDesk extends Facade
 {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -25,12 +26,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $comment_id
  * @property string $status
  * @property string|null $error_message
- * @property \Illuminate\Support\Carbon|null $processed_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\EmailChannel|null $emailChannel
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket|null $ticket
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\TicketComment|null $comment
+ * @property Carbon|null $processed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read EmailChannel|null $emailChannel
+ * @property-read Ticket|null $ticket
+ * @property-read TicketComment|null $comment
  */
 class InboundEmail extends Model
 {

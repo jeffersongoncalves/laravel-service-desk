@@ -23,8 +23,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $paused_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy $slaPolicy
+ * @property-read Ticket $ticket
+ * @property-read SlaPolicy $slaPolicy
  */
 class TicketSla extends Model
 {

@@ -3,8 +3,10 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,11 +15,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $timezone
  * @property bool $is_default
  * @property bool $is_active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursTimeSlot> $timeSlots
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Holiday> $holidays
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy> $slaPolicies
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, BusinessHoursTimeSlot> $timeSlots
+ * @property-read Collection<int, Holiday> $holidays
+ * @property-read Collection<int, SlaPolicy> $slaPolicies
  */
 class BusinessHoursSchedule extends Model
 {

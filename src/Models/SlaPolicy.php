@@ -3,10 +3,12 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,13 +18,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array|null $conditions
  * @property bool $is_active
  * @property int $sort_order
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursSchedule|null $businessHoursSchedule
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\SlaTarget> $targets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\EscalationRule> $escalationRules
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Ticket> $tickets
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read BusinessHoursSchedule|null $businessHoursSchedule
+ * @property-read Collection<int, SlaTarget> $targets
+ * @property-read Collection<int, EscalationRule> $escalationRules
+ * @property-read Collection<int, Ticket> $tickets
  */
 class SlaPolicy extends Model
 {

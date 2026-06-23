@@ -2,15 +2,16 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Concerns;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketComment;
 use JeffersonGoncalves\ServiceDesk\Models\TicketWatcher;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Ticket> $serviceDeskTickets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketComment> $serviceDeskComments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketWatcher> $serviceDeskWatching
+ * @property-read Collection<int, Ticket> $serviceDeskTickets
+ * @property-read Collection<int, TicketComment> $serviceDeskComments
+ * @property-read Collection<int, TicketWatcher> $serviceDeskWatching
  */
 trait HasTickets
 {

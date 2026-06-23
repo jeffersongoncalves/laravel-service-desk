@@ -3,11 +3,13 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Enums\ServiceRequestStatus;
 
@@ -19,16 +21,16 @@ use JeffersonGoncalves\ServiceDesk\Enums\ServiceRequestStatus;
  * @property string $requester_type
  * @property int $requester_id
  * @property array $form_data
- * @property \JeffersonGoncalves\ServiceDesk\Enums\ServiceRequestStatus $status
+ * @property ServiceRequestStatus $status
  * @property string|null $notes
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Service $service
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket|null $ticket
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $requester
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\ServiceRequestApproval> $approvals
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Service $service
+ * @property-read Ticket|null $ticket
+ * @property-read Model|\Eloquent $requester
+ * @property-read Collection<int, ServiceRequestApproval> $approvals
  */
 class ServiceRequest extends Model
 {

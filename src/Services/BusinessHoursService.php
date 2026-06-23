@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use JeffersonGoncalves\ServiceDesk\Contracts\BusinessHoursCalculator;
 use JeffersonGoncalves\ServiceDesk\Contracts\SlaCalculator;
 use JeffersonGoncalves\ServiceDesk\Models\BusinessHoursSchedule;
+use JeffersonGoncalves\ServiceDesk\Models\BusinessHoursTimeSlot;
 
 class BusinessHoursService implements BusinessHoursCalculator, SlaCalculator
 {
@@ -58,7 +59,7 @@ class BusinessHoursService implements BusinessHoursCalculator, SlaCalculator
             }
 
             foreach ($daySlots as $slot) {
-                /** @var \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursTimeSlot $slot */
+                /** @var BusinessHoursTimeSlot $slot */
                 if ($remainingMinutes <= 0) {
                     break;
                 }
@@ -116,7 +117,7 @@ class BusinessHoursService implements BusinessHoursCalculator, SlaCalculator
         $currentTime = $localTime->format('H:i:s');
 
         foreach ($slots as $slot) {
-            /** @var \JeffersonGoncalves\ServiceDesk\Models\BusinessHoursTimeSlot $slot */
+            /** @var BusinessHoursTimeSlot $slot */
             if ($currentTime >= $slot->start_time && $currentTime < $slot->end_time) {
                 return true;
             }

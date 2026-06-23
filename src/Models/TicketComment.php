@@ -3,12 +3,16 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketCommentFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 
 /**
@@ -17,22 +21,28 @@ use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
  * @property string $author_type
  * @property int $author_id
  * @property string $body
- * @property \JeffersonGoncalves\ServiceDesk\Enums\CommentType $type
+ * @property CommentType $type
  * @property bool $is_internal
  * @property string|null $email_message_id
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $author
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketAttachment> $attachments
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Ticket $ticket
+ * @property-read Model|\Eloquent $author
+ * @property-read Collection<int, TicketAttachment> $attachments
  */
 class TicketComment extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_ticket_comments';
+
+    /** @return Factory<self> */
+    protected static function newFactory(): Factory
+    {
+        return TicketCommentFactory::new();
+    }
 
     protected $fillable = [
         'ticket_id',

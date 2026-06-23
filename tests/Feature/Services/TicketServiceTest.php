@@ -23,7 +23,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->service = app(TicketService::class);
-    $this->department = Department::create(['name' => 'IT Support', 'slug' => 'it-support']);
+    $this->department = Department::factory()->create();
     $this->user = User::create(['name' => 'John Doe', 'email' => 'john@example.com']);
     $this->operator = User::create(['name' => 'Jane Operator', 'email' => 'jane@example.com']);
 

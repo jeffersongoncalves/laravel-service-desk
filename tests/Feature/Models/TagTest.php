@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\Tag;
@@ -47,12 +48,12 @@ it('can delete a tag', function () {
 it('enforces unique name constraint', function () {
     Tag::create(['name' => 'Bug', 'slug' => 'bug']);
     Tag::create(['name' => 'Bug', 'slug' => 'bug-2']);
-})->throws(\Illuminate\Database\QueryException::class);
+})->throws(QueryException::class);
 
 it('enforces unique slug constraint', function () {
     Tag::create(['name' => 'Bug', 'slug' => 'bug']);
     Tag::create(['name' => 'Bug 2', 'slug' => 'bug']);
-})->throws(\Illuminate\Database\QueryException::class);
+})->throws(QueryException::class);
 
 // ── Polymorphic Relationships ───────────────────────────────────────────────
 

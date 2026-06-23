@@ -3,6 +3,7 @@
 namespace JeffersonGoncalves\ServiceDesk\Tests;
 
 use JeffersonGoncalves\ServiceDesk\ServiceDeskServiceProvider;
+use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -22,8 +23,8 @@ abstract class TestCase extends Orchestra
             'database' => ':memory:',
         ]);
 
-        config()->set('service-desk.models.user', \JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User::class);
-        config()->set('service-desk.models.operator', \JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User::class);
+        config()->set('service-desk.models.user', User::class);
+        config()->set('service-desk.models.operator', User::class);
         config()->set('service-desk.register_default_listeners', false);
     }
 

@@ -29,7 +29,7 @@ A complete, headless Service Desk package for Laravel featuring ticket managemen
 ## Requirements
 
 - PHP 8.2+
-- Laravel 11.x or 12.x
+- Laravel 11.x, 12.x or 13.x
 
 ## Installation
 
@@ -186,7 +186,7 @@ use JeffersonGoncalves\ServiceDesk\Facades\ServiceDesk;
 // Create a ticket
 $ticket = ServiceDesk::createTicket([
     'title' => 'Cannot login to the system',
-    'body' => 'I get an error when trying to login...',
+    'description' => 'I get an error when trying to login...',
     'priority' => 'high',
     'department_id' => 1,
     'category_id' => 2,

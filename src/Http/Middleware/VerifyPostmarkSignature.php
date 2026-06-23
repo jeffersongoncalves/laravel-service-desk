@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use JeffersonGoncalves\WebhookSignatures\WebhookSignatureManager;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyPostmarkSignature
@@ -17,10 +18,11 @@ class VerifyPostmarkSignature
             abort(500, 'Postmark webhook credentials are not configured.');
         }
 
-        $username = $request->getUser();
-        $password = $request->getPassword();
+        // Postmark authenticates inbound webhooks via HTTP Basic Auth; the
+        // package verifier expects the credential pair as "username:password".
+        $verifier = app(WebhookSignatureManager::class)->verifier('postmark');
 
-        if ($username !== $expectedUsername || $password !== $expectedPassword) {
+        if (! $verifier->verify($request, $expectedUsername.':'.$expectedPassword)) {
             abort(403, 'Invalid Postmark webhook credentials.');
         }
 

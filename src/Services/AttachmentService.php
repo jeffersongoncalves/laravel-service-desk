@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use JeffersonGoncalves\ServiceDesk\Events\AttachmentAdded;
 use JeffersonGoncalves\ServiceDesk\Events\AttachmentRemoved;
+use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidAttachmentException;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketAttachment;
 use JeffersonGoncalves\ServiceDesk\Models\TicketComment;
@@ -15,6 +16,11 @@ class AttachmentService
 {
     public function store(Ticket $ticket, UploadedFile $file, Model $uploadedBy, ?TicketComment $comment = null): TicketAttachment
     {
+        $this->validate(
+            (string) $file->getClientOriginalExtension(),
+            (int) ceil(($file->getSize() ?: 0) / 1024)
+        );
+
         $disk = config('service-desk.ticket.attachment_disk', 'local');
         $path = config('service-desk.ticket.attachment_path', 'service-desk/attachments');
 
@@ -42,6 +48,11 @@ class AttachmentService
 
     public function storeFromPath(Ticket $ticket, string $filePath, string $fileName, string $mimeType, int $fileSize, Model $uploadedBy, ?TicketComment $comment = null): TicketAttachment
     {
+        $this->validate(
+            (string) pathinfo($fileName, PATHINFO_EXTENSION),
+            (int) ceil($fileSize / 1024)
+        );
+
         $disk = config('service-desk.ticket.attachment_disk', 'local');
         $storagePath = config('service-desk.ticket.attachment_path', 'service-desk/attachments');
 
@@ -74,6 +85,27 @@ class AttachmentService
         event(new AttachmentRemoved($ticket, $attachment, $removedBy));
 
         return $attachment->delete();
+    }
+
+    /**
+     * Validate an attachment's extension and size against the configured limits.
+     *
+     * @throws InvalidAttachmentException
+     */
+    public function validate(string $extension, int $sizeInKb): void
+    {
+        $allowed = config('service-desk.ticket.allowed_extensions', []);
+
+        if (! empty($allowed) && ! $this->isAllowedExtension($extension)) {
+            throw InvalidAttachmentException::disallowedExtension($extension);
+        }
+
+        if (! $this->isWithinSizeLimit($sizeInKb)) {
+            throw InvalidAttachmentException::fileTooLarge(
+                $sizeInKb,
+                (int) config('service-desk.ticket.max_file_size', 10240)
+            );
+        }
     }
 
     public function isAllowedExtension(string $extension): bool

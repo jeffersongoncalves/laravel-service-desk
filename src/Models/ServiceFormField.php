@@ -5,6 +5,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Enums\FormFieldType;
 
 /**
@@ -12,7 +13,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\FormFieldType;
  * @property int $service_id
  * @property string $name
  * @property string $label
- * @property \JeffersonGoncalves\ServiceDesk\Enums\FormFieldType $type
+ * @property FormFieldType $type
  * @property bool $is_required
  * @property array|null $options
  * @property array|null $validation_rules
@@ -21,9 +22,9 @@ use JeffersonGoncalves\ServiceDesk\Enums\FormFieldType;
  * @property string|null $default_value
  * @property int $sort_order
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Service $service
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Service $service
  */
 class ServiceFormField extends Model
 {

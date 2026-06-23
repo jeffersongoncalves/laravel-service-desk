@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use JeffersonGoncalves\WebhookSignatures\WebhookSignatureManager;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifySendGridSignature
@@ -17,10 +18,14 @@ class VerifySendGridSignature
             abort(500, 'SendGrid webhook credentials are not configured.');
         }
 
-        $username = $request->getUser();
-        $password = $request->getPassword();
+        // Service Desk protects the SendGrid inbound parse webhook with HTTP
+        // Basic Auth (username/password), which maps to the package's Basic-Auth
+        // verifier (registered under the "postmark" provider key). The package's
+        // dedicated SendGrid verifier targets the ECDSA-signed Event Webhook and
+        // does not apply to this Basic-Auth protected route.
+        $verifier = app(WebhookSignatureManager::class)->verifier('postmark');
 
-        if ($username !== $expectedUsername || $password !== $expectedPassword) {
+        if (! $verifier->verify($request, $expectedUsername.':'.$expectedPassword)) {
             abort(403, 'Invalid SendGrid webhook credentials.');
         }
 

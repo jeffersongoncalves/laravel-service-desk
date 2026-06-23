@@ -3,6 +3,8 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 
@@ -28,44 +32,50 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
  * @property int|null $assigned_to_id
  * @property string $title
  * @property string $description
- * @property \JeffersonGoncalves\ServiceDesk\Enums\TicketStatus $status
- * @property \JeffersonGoncalves\ServiceDesk\Enums\TicketPriority $priority
+ * @property TicketStatus $status
+ * @property TicketPriority $priority
  * @property string $source
  * @property string|null $email_message_id
  * @property int|null $sla_policy_id
- * @property \Illuminate\Support\Carbon|null $first_response_due_at
- * @property \Illuminate\Support\Carbon|null $next_response_due_at
- * @property \Illuminate\Support\Carbon|null $resolution_due_at
- * @property \Illuminate\Support\Carbon|null $first_responded_at
- * @property \Illuminate\Support\Carbon|null $resolved_at
+ * @property Carbon|null $first_response_due_at
+ * @property Carbon|null $next_response_due_at
+ * @property Carbon|null $resolution_due_at
+ * @property Carbon|null $first_responded_at
+ * @property Carbon|null $resolved_at
  * @property bool $first_response_breached
  * @property bool $resolution_breached
- * @property \Illuminate\Support\Carbon|null $closed_at
- * @property \Illuminate\Support\Carbon|null $due_at
- * @property \Illuminate\Support\Carbon|null $last_replied_at
+ * @property Carbon|null $closed_at
+ * @property Carbon|null $due_at
+ * @property Carbon|null $last_replied_at
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $user
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $assignedTo
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Department $department
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Category|null $category
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketComment> $comments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketAttachment> $attachments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketHistory> $history
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\TicketWatcher> $watchers
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy|null $slaPolicy
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\TicketSla|null $ticketSla
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\Tag> $tags
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\KbArticle> $linkedArticles
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\ServiceRequest|null $serviceRequest
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Model|\Eloquent $user
+ * @property-read Model|\Eloquent|null $assignedTo
+ * @property-read Department $department
+ * @property-read Category|null $category
+ * @property-read Collection<int, TicketComment> $comments
+ * @property-read Collection<int, TicketAttachment> $attachments
+ * @property-read Collection<int, TicketHistory> $history
+ * @property-read Collection<int, TicketWatcher> $watchers
+ * @property-read SlaPolicy|null $slaPolicy
+ * @property-read TicketSla|null $ticketSla
+ * @property-read Collection<int, Tag> $tags
+ * @property-read Collection<int, KbArticle> $linkedArticles
+ * @property-read ServiceRequest|null $serviceRequest
  */
 class Ticket extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_tickets';
+
+    /** @return Factory<self> */
+    protected static function newFactory(): Factory
+    {
+        return TicketFactory::new();
+    }
 
     protected $fillable = [
         'uuid',

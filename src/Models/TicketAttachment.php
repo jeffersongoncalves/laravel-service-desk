@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -22,11 +23,11 @@ use Illuminate\Support\Str;
  * @property string $mime_type
  * @property int $file_size
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\TicketComment|null $comment
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $uploadedBy
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Ticket $ticket
+ * @property-read TicketComment|null $comment
+ * @property-read Model|\Eloquent $uploadedBy
  */
 class TicketAttachment extends Model
 {

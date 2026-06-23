@@ -3,10 +3,12 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,12 +18,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $email_address
  * @property array $settings
  * @property bool $is_active
- * @property \Illuminate\Support\Carbon|null $last_polled_at
+ * @property Carbon|null $last_polled_at
  * @property string|null $last_error
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Department|null $department
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \JeffersonGoncalves\ServiceDesk\Models\InboundEmail> $inboundEmails
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Department|null $department
+ * @property-read Collection<int, InboundEmail> $inboundEmails
  */
 class EmailChannel extends Model
 {

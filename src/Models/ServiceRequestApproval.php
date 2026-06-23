@@ -5,6 +5,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Enums\ApprovalStatus;
 
 /**
@@ -12,14 +13,14 @@ use JeffersonGoncalves\ServiceDesk\Enums\ApprovalStatus;
  * @property int $service_request_id
  * @property string $approver_type
  * @property int $approver_id
- * @property \JeffersonGoncalves\ServiceDesk\Enums\ApprovalStatus $status
+ * @property ApprovalStatus $status
  * @property string|null $comment
  * @property int $step_order
- * @property \Illuminate\Support\Carbon|null $decided_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\ServiceRequest $serviceRequest
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $approver
+ * @property Carbon|null $decided_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ServiceRequest $serviceRequest
+ * @property-read Model|\Eloquent $approver
  */
 class ServiceRequestApproval extends Model
 {

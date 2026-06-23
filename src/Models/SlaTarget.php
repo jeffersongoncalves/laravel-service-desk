@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,9 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $first_response_time
  * @property int|null $next_response_time
  * @property int|null $resolution_time
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\SlaPolicy $slaPolicy
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read SlaPolicy $slaPolicy
  */
 class SlaTarget extends Model
 {

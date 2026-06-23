@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use JeffersonGoncalves\ServiceDesk\Models\Category;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
@@ -175,9 +176,9 @@ it('orders departments by sort_order then name', function () {
 it('enforces unique name constraint', function () {
     Department::create(['name' => 'IT Support', 'slug' => 'it-support']);
     Department::create(['name' => 'IT Support', 'slug' => 'it-support-2']);
-})->throws(\Illuminate\Database\QueryException::class);
+})->throws(QueryException::class);
 
 it('enforces unique slug constraint', function () {
     Department::create(['name' => 'IT Support', 'slug' => 'it-support']);
     Department::create(['name' => 'IT Support 2', 'slug' => 'it-support']);
-})->throws(\Illuminate\Database\QueryException::class);
+})->throws(QueryException::class);

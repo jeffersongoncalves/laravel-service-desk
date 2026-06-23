@@ -10,6 +10,7 @@ use JeffersonGoncalves\ServiceDesk\Events\SlaApplied;
 use JeffersonGoncalves\ServiceDesk\Events\SlaBreached;
 use JeffersonGoncalves\ServiceDesk\Events\SlaNearBreach;
 use JeffersonGoncalves\ServiceDesk\Models\SlaPolicy;
+use JeffersonGoncalves\ServiceDesk\Models\SlaTarget;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketSla;
 
@@ -31,7 +32,7 @@ class SlaService
             return null;
         }
 
-        /** @var \JeffersonGoncalves\ServiceDesk\Models\SlaTarget|null $target */
+        /** @var SlaTarget|null $target */
         $target = $policy->targets()
             ->where('priority', $ticket->priority->value)
             ->first();

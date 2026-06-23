@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use JeffersonGoncalves\WebhookSignatures\WebhookSignatureManager;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyMailgunSignature
@@ -16,18 +17,9 @@ class VerifyMailgunSignature
             abort(500, 'Mailgun signing key is not configured.');
         }
 
-        $signature = $request->input('signature', []);
-        $timestamp = $signature['timestamp'] ?? '';
-        $token = $signature['token'] ?? '';
-        $expectedSignature = $signature['signature'] ?? '';
+        $verifier = app(WebhookSignatureManager::class)->verifier('mailgun');
 
-        if (! $timestamp || ! $token || ! $expectedSignature) {
-            abort(403, 'Invalid Mailgun signature: missing parameters.');
-        }
-
-        $computedSignature = hash_hmac('sha256', $timestamp.$token, $signingKey);
-
-        if (! hash_equals($computedSignature, $expectedSignature)) {
+        if (! $verifier->verify($request, $signingKey)) {
             abort(403, 'Invalid Mailgun signature.');
         }
 

@@ -9,6 +9,7 @@ use JeffersonGoncalves\ServiceDesk\Commands\CloseStaleTicketsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\PollImapMailboxCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\ProcessEscalationsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\RecalculateSlaCommand;
+use JeffersonGoncalves\ServiceDesk\Contracts\SlaCalculator;
 use JeffersonGoncalves\ServiceDesk\Events\CommentAdded;
 use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
 use JeffersonGoncalves\ServiceDesk\Events\TicketAssigned;
@@ -21,6 +22,7 @@ use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketAssignedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketCreatedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketStatusChangedNotification;
 use JeffersonGoncalves\ServiceDesk\Services\AttachmentService;
+use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
 use JeffersonGoncalves\ServiceDesk\Services\CommentService;
 use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
@@ -92,6 +94,8 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(DepartmentService::class);
         $this->app->singleton(AttachmentService::class);
         $this->app->singleton(InboundEmailService::class);
+
+        $this->app->bind(SlaCalculator::class, BusinessHoursService::class);
 
         $this->app->singleton(ServiceDeskManager::class, function ($app) {
             return new ServiceDeskManager(

@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Concerns;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
@@ -9,9 +10,9 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketHistory;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Ticket> $serviceDeskAssignedTickets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Department> $serviceDeskDepartments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketHistory> $serviceDeskHistory
+ * @property-read Collection<int, Ticket> $serviceDeskAssignedTickets
+ * @property-read Collection<int, Department> $serviceDeskDepartments
+ * @property-read Collection<int, TicketHistory> $serviceDeskHistory
  */
 trait IsOperator
 {

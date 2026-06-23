@@ -5,6 +5,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,9 +17,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $editor_type
  * @property int $editor_id
  * @property string|null $change_notes
- * @property \Illuminate\Support\Carbon $created_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\KbArticle $article
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $editor
+ * @property Carbon $created_at
+ * @property-read KbArticle $article
+ * @property-read Model|\Eloquent $editor
  */
 class KbArticleVersion extends Model
 {

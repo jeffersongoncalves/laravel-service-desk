@@ -5,6 +5,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
 
 /**
@@ -12,15 +13,15 @@ use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
  * @property int $ticket_id
  * @property string|null $performer_type
  * @property int|null $performer_id
- * @property \JeffersonGoncalves\ServiceDesk\Enums\HistoryAction $action
+ * @property HistoryAction $action
  * @property string|null $field
  * @property string|null $old_value
  * @property string|null $new_value
  * @property string|null $description
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property-read \JeffersonGoncalves\ServiceDesk\Models\Ticket $ticket
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $performer
+ * @property Carbon|null $created_at
+ * @property-read Ticket $ticket
+ * @property-read Model|\Eloquent|null $performer
  */
 class TicketHistory extends Model
 {

@@ -6,6 +6,7 @@ use JeffersonGoncalves\ServiceDesk\Contracts\EmailDriver;
 use JeffersonGoncalves\ServiceDesk\Exceptions\EmailProcessingException;
 use JeffersonGoncalves\ServiceDesk\Mail\EmailParser;
 use JeffersonGoncalves\ServiceDesk\Models\EmailChannel;
+use Webklex\PHPIMAP\ClientManager;
 
 class ImapDriver implements EmailDriver
 {
@@ -29,8 +30,8 @@ class ImapDriver implements EmailDriver
         $config = array_merge($globalConfig, $settings);
 
         try {
-            /** @var \Webklex\PHPIMAP\ClientManager $clientManager */
-            $clientManager = new \Webklex\PHPIMAP\ClientManager;
+            /** @var ClientManager $clientManager */
+            $clientManager = new ClientManager;
 
             $client = $clientManager->make([
                 'host' => $config['host'] ?? '',
@@ -155,7 +156,7 @@ class ImapDriver implements EmailDriver
      */
     protected function ensureDependenciesInstalled(): void
     {
-        if (! class_exists(\Webklex\PHPIMAP\ClientManager::class)) {
+        if (! class_exists(ClientManager::class)) {
             throw EmailProcessingException::driverNotInstalled('imap', 'webklex/php-imap');
         }
     }

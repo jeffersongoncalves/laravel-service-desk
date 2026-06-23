@@ -3,11 +3,13 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
+use JeffersonGoncalves\ServiceDesk\Database\Factories\TagFactory;
 
 /**
  * @property int $id
@@ -26,6 +28,12 @@ class Tag extends Model
     use HasFactory, HasSlug;
 
     protected $table = 'service_desk_tags';
+
+    /** @return Factory<self> */
+    protected static function newFactory(): Factory
+    {
+        return TagFactory::new();
+    }
 
     protected $fillable = [
         'name',
