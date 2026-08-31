@@ -2,6 +2,7 @@
 
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use JeffersonGoncalves\ServiceDesk\Models\Category;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
@@ -175,10 +176,15 @@ it('orders departments by sort_order then name', function () {
 
 it('enforces unique name constraint', function () {
     Department::create(['name' => 'IT Support', 'slug' => 'it-support']);
-    Department::create(['name' => 'IT Support', 'slug' => 'it-support-2']);
+
+    // Postgres aborts the whole transaction on a failed query, not just the
+    // statement, so the risky insert runs in its own nested transaction
+    // (savepoint) to keep the outer per-test transaction usable afterward.
+    DB::transaction(fn () => Department::create(['name' => 'IT Support', 'slug' => 'it-support-2']));
 })->throws(QueryException::class);
 
 it('enforces unique slug constraint', function () {
     Department::create(['name' => 'IT Support', 'slug' => 'it-support']);
-    Department::create(['name' => 'IT Support 2', 'slug' => 'it-support']);
+
+    DB::transaction(fn () => Department::create(['name' => 'IT Support 2', 'slug' => 'it-support']));
 })->throws(QueryException::class);

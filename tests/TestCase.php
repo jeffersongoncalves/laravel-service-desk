@@ -11,47 +11,6 @@ abstract class TestCase extends Orchestra
 {
     use RefreshDatabase;
 
-    protected function getPackageProviders($app): array
-    {
-        return [
-            ServiceDeskServiceProvider::class,
-        ];
-    }
-
-    protected function getEnvironmentSetUp($app): void
-    {
-        config()->set('database.default', 'testing');
-        config()->set('database.connections.testing', match (env('DB_CONNECTION', 'sqlite')) {
-            'mysql' => [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', 3306),
-                'database' => env('DB_DATABASE', 'testing'),
-                'username' => env('DB_USERNAME', 'root'),
-                'password' => env('DB_PASSWORD', ''),
-                'prefix' => '',
-            ],
-            'pgsql' => [
-                'driver' => 'pgsql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', 5432),
-                'database' => env('DB_DATABASE', 'testing'),
-                'username' => env('DB_USERNAME', 'postgres'),
-                'password' => env('DB_PASSWORD', 'postgres'),
-                'prefix' => '',
-            ],
-            default => [
-                'driver' => 'sqlite',
-                'database' => ':memory:',
-                'prefix' => '',
-            ],
-        });
-
-        config()->set('service-desk.models.user', User::class);
-        config()->set('service-desk.models.operator', User::class);
-        config()->set('service-desk.register_default_listeners', false);
-    }
-
     /**
      * Same order as ServiceDeskServiceProvider::hasMigrations(). SQLite doesn't
      * enforce foreign keys at CREATE TABLE time, but MySQL/Postgres do, so
@@ -96,31 +55,68 @@ abstract class TestCase extends Orchestra
         'create_service_desk_service_request_approvals_table',
     ];
 
+    protected function getPackageProviders($app): array
+    {
+        return [
+            ServiceDeskServiceProvider::class,
+        ];
+    }
+
+    protected function getEnvironmentSetUp($app): void
+    {
+        config()->set('database.default', 'testing');
+        config()->set('database.connections.testing', $this->testing_connection());
+
+        config()->set('service-desk.models.user', User::class);
+        config()->set('service-desk.models.operator', User::class);
+        config()->set('service-desk.register_default_listeners', false);
+    }
+
+    /**
+     * Defaults to an in-memory SQLite connection for local development; CI
+     * (tests.yml) sets SERVICE_DESK_TEST_DB_* to run the same suite against
+     * real MySQL and PostgreSQL instances too. Deliberately not the plain
+     * DB_* names: Orchestra Testbench itself sets DB_CONNECTION=testing by
+     * convention, which would collide with (and always win over) a driver
+     * value read from the same variable here.
+     *
+     * @return array<string, mixed>
+     */
+    protected function testing_connection(): array
+    {
+        $driver = env('SERVICE_DESK_TEST_DB_DRIVER', 'sqlite');
+
+        if ($driver === 'sqlite') {
+            return ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''];
+        }
+
+        return [
+            'driver' => $driver,
+            'host' => env('SERVICE_DESK_TEST_DB_HOST', '127.0.0.1'),
+            'port' => env('SERVICE_DESK_TEST_DB_PORT'),
+            'database' => env('SERVICE_DESK_TEST_DB_DATABASE', 'testing'),
+            'username' => env('SERVICE_DESK_TEST_DB_USERNAME', 'root'),
+            'password' => env('SERVICE_DESK_TEST_DB_PASSWORD', ''),
+            'charset' => $driver === 'pgsql' ? 'utf8' : 'utf8mb4',
+            'prefix' => '',
+        ];
+    }
+
     protected function defineDatabaseMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
-        $migrationPath = __DIR__.'/../database/migrations';
-        $files = [];
+        $stubsPath = __DIR__.'/../database/migrations';
+        $tempPath = sys_get_temp_dir().'/laravel-service-desk-migrations';
 
-        foreach (self::MIGRATION_ORDER as $index => $name) {
-            $migrationFile = $migrationPath.'/'.sprintf('%03d_%s.php', $index, $name);
-
-            if (! file_exists($migrationFile)) {
-                copy($migrationPath.'/'.$name.'.php.stub', $migrationFile);
-            }
-
-            $files[] = $migrationFile;
+        if (! is_dir($tempPath)) {
+            mkdir($tempPath, 0755, true);
         }
 
-        $this->loadMigrationsFrom($migrationPath);
+        foreach (self::MIGRATION_ORDER as $index => $name) {
+            copy($stubsPath.'/'.$name.'.php.stub', $tempPath.'/'.sprintf('%03d_%s.php', $index, $name));
+        }
 
-        $this->beforeApplicationDestroyed(function () use ($files) {
-            foreach ($files as $file) {
-                if (file_exists($file)) {
-                    unlink($file);
-                }
-            }
-        });
+        $this->loadMigrationsFrom($tempPath);
     }
 }

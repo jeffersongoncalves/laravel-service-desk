@@ -2,6 +2,7 @@
 
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\Tag;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
@@ -47,12 +48,17 @@ it('can delete a tag', function () {
 
 it('enforces unique name constraint', function () {
     Tag::create(['name' => 'Bug', 'slug' => 'bug']);
-    Tag::create(['name' => 'Bug', 'slug' => 'bug-2']);
+
+    // Postgres aborts the whole transaction on a failed query, not just the
+    // statement, so the risky insert runs in its own nested transaction
+    // (savepoint) to keep the outer per-test transaction usable afterward.
+    DB::transaction(fn () => Tag::create(['name' => 'Bug', 'slug' => 'bug-2']));
 })->throws(QueryException::class);
 
 it('enforces unique slug constraint', function () {
     Tag::create(['name' => 'Bug', 'slug' => 'bug']);
-    Tag::create(['name' => 'Bug 2', 'slug' => 'bug']);
+
+    DB::transaction(fn () => Tag::create(['name' => 'Bug 2', 'slug' => 'bug']));
 })->throws(QueryException::class);
 
 // ── Polymorphic Relationships ───────────────────────────────────────────────
