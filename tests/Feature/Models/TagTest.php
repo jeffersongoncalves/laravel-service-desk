@@ -1,14 +1,10 @@
 <?php
 
-use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\Tag;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
-
-uses(RefreshDatabase::class);
 
 // ── CRUD ────────────────────────────────────────────────────────────────────
 
@@ -46,20 +42,25 @@ it('can delete a tag', function () {
     expect(Tag::find($id))->toBeNull();
 });
 
+// Asserting via schema introspection rather than inserting a duplicate row
+// and expecting a QueryException: on Postgres/MySQL, a failed query inside
+// RefreshDatabase's per-test transaction can leave that connection without
+// an active transaction by the time the framework checks, which resets its
+// "already migrated" cache and forces a full re-migration before the next
+// test — turning one assertion into a multi-minute stall.
 it('enforces unique name constraint', function () {
-    Tag::create(['name' => 'Bug', 'slug' => 'bug']);
+    $unique = collect(Schema::getIndexes('service_desk_tags'))
+        ->contains(fn ($index) => $index['unique'] && $index['columns'] === ['name']);
 
-    // Postgres aborts the whole transaction on a failed query, not just the
-    // statement, so the risky insert runs in its own nested transaction
-    // (savepoint) to keep the outer per-test transaction usable afterward.
-    DB::transaction(fn () => Tag::create(['name' => 'Bug', 'slug' => 'bug-2']));
-})->throws(QueryException::class);
+    expect($unique)->toBeTrue();
+});
 
 it('enforces unique slug constraint', function () {
-    Tag::create(['name' => 'Bug', 'slug' => 'bug']);
+    $unique = collect(Schema::getIndexes('service_desk_tags'))
+        ->contains(fn ($index) => $index['unique'] && $index['columns'] === ['slug']);
 
-    DB::transaction(fn () => Tag::create(['name' => 'Bug 2', 'slug' => 'bug']));
-})->throws(QueryException::class);
+    expect($unique)->toBeTrue();
+});
 
 // ── Polymorphic Relationships ───────────────────────────────────────────────
 

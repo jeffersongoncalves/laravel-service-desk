@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -10,8 +9,6 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketAttachment;
 use JeffersonGoncalves\ServiceDesk\Services\AttachmentService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('local');

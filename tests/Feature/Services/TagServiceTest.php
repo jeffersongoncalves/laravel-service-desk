@@ -1,13 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\Tag;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Services\TagService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->service = app(TagService::class);

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
@@ -18,8 +17,6 @@ use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->service = app(TicketService::class);

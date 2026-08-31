@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
@@ -9,8 +8,6 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketComment;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->service = app(InboundEmailService::class);

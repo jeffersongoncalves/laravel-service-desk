@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use JeffersonGoncalves\ServiceDesk\Contracts\SlaCalculator;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
@@ -12,8 +11,6 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketSla;
 use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
 use JeffersonGoncalves\ServiceDesk\Services\SlaService;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // SlaCalculator is bound in the service provider, so resolve via the container.

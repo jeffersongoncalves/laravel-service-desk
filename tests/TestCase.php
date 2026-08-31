@@ -64,12 +64,12 @@ abstract class TestCase extends Orchestra
 
     protected function getEnvironmentSetUp($app): void
     {
-        config()->set('database.default', 'testing');
-        config()->set('database.connections.testing', $this->testing_connection());
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', $this->testing_connection());
 
-        config()->set('service-desk.models.user', User::class);
-        config()->set('service-desk.models.operator', User::class);
-        config()->set('service-desk.register_default_listeners', false);
+        $app['config']->set('service-desk.models.user', User::class);
+        $app['config']->set('service-desk.models.operator', User::class);
+        $app['config']->set('service-desk.register_default_listeners', false);
     }
 
     /**

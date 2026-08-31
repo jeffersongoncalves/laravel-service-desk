@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use JeffersonGoncalves\ServiceDesk\Enums\ArticleStatus;
 use JeffersonGoncalves\ServiceDesk\Events\ArticleCreated;
@@ -12,8 +11,6 @@ use JeffersonGoncalves\ServiceDesk\Models\KbCategory;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Services\KnowledgeBaseService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->service = app(KnowledgeBaseService::class);
