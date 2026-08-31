@@ -6,6 +6,7 @@ use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\InboundEmail;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
+use JeffersonGoncalves\ServiceDesk\Models\TicketComment;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 
@@ -103,14 +104,16 @@ it('marks an email as processed with ticket and comment ids', function () {
     Event::fake([InboundEmailReceived::class]);
 
     $email = $this->service->store(makeEmailData());
+    $ticket = Ticket::factory()->create();
+    $comment = TicketComment::factory()->for($ticket)->create();
 
-    $this->service->markProcessed($email, 1, 5);
+    $this->service->markProcessed($email, $ticket->id, $comment->id);
 
     $email->refresh();
 
     expect($email->status)->toBe('processed')
-        ->and($email->ticket_id)->toBe(1)
-        ->and($email->comment_id)->toBe(5);
+        ->and($email->ticket_id)->toBe($ticket->id)
+        ->and($email->comment_id)->toBe($comment->id);
 });
 
 it('marks an email as processed without ticket id', function () {
