@@ -6,6 +6,8 @@
 
 # Laravel Service Desk
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/jeffersongoncalves)
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffersongoncalves/laravel-service-desk.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/laravel-service-desk)
 [![GitHub Release](https://img.shields.io/github/v/release/jeffersongoncalves/laravel-service-desk?style=flat-square)](https://github.com/jeffersongoncalves/laravel-service-desk/releases/latest)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/jeffersongoncalves/laravel-service-desk/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/jeffersongoncalves/laravel-service-desk/actions?query=workflow%3ATests+branch%3Amain)
