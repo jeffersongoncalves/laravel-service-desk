@@ -40,15 +40,15 @@ class SlaNearBreachNotification extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.sla_near_breach.subject'))
-            ->greeting(__('service-desk::notifications.sla_near_breach.greeting'))
-            ->line(__('service-desk::notifications.sla_near_breach.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.sla_near_breach.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.sla_near_breach.greeting'))
+            ->line(__('service-desk::service-desk.notifications.sla_near_breach.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
                 'breach_type' => $this->breachType,
                 'minutes' => $this->minutesRemaining,
             ]))
-            ->line(__('service-desk::notifications.sla_near_breach.priority', [
+            ->line(__('service-desk::service-desk.notifications.sla_near_breach.priority', [
                 'priority' => $ticket->priority->label(),
             ]));
     }

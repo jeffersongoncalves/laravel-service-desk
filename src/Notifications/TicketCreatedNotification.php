@@ -38,16 +38,16 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.ticket_created.subject'))
-            ->greeting(__('service-desk::notifications.ticket_created.greeting'))
-            ->line(__('service-desk::notifications.ticket_created.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.ticket_created.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.ticket_created.greeting'))
+            ->line(__('service-desk::service-desk.notifications.ticket_created.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
             ]))
-            ->line(__('service-desk::notifications.ticket_created.department', [
+            ->line(__('service-desk::service-desk.notifications.ticket_created.department', [
                 'department' => $ticket->department->name,
             ]))
-            ->line(__('service-desk::notifications.ticket_created.priority', [
+            ->line(__('service-desk::service-desk.notifications.ticket_created.priority', [
                 'priority' => $ticket->priority->label(),
             ]))
             ->withSymfonyMessage(function ($message) use ($ticket) {

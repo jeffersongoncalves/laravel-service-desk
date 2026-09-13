@@ -38,13 +38,13 @@ class TicketClosedNotification extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.ticket_closed.subject'))
-            ->greeting(__('service-desk::notifications.ticket_closed.greeting'))
-            ->line(__('service-desk::notifications.ticket_closed.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.ticket_closed.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.ticket_closed.greeting'))
+            ->line(__('service-desk::service-desk.notifications.ticket_closed.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
             ]))
-            ->line(__('service-desk::notifications.ticket_closed.info'))
+            ->line(__('service-desk::service-desk.notifications.ticket_closed.info'))
             ->withSymfonyMessage(function ($message) use ($ticket) {
                 $domain = parse_url(config('app.url', 'http://localhost'), PHP_URL_HOST) ?? 'localhost';
                 $messageId = "<{$ticket->uuid}-closed-{$ticket->id}@{$domain}>";

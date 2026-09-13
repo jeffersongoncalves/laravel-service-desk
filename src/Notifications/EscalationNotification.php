@@ -40,15 +40,15 @@ class EscalationNotification extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.escalation.subject'))
-            ->greeting(__('service-desk::notifications.escalation.greeting'))
-            ->line(__('service-desk::notifications.escalation.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.escalation.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.escalation.greeting'))
+            ->line(__('service-desk::service-desk.notifications.escalation.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
                 'breach_type' => $this->escalationRule->breach_type->value,
                 'action' => $this->escalationRule->action->value,
             ]))
-            ->line(__('service-desk::notifications.escalation.priority', [
+            ->line(__('service-desk::service-desk.notifications.escalation.priority', [
                 'priority' => $ticket->priority->label(),
             ]));
     }

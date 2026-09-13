@@ -133,8 +133,12 @@ class BusinessHoursService implements BusinessHoursCalculator, SlaCalculator
         $exists = $schedule->holidays()
             ->where(function ($query) use ($localDate) {
                 $query->where(function ($q) use ($localDate) {
+                    // whereDate(), not where(): the `date` cast serializes to a full
+                    // "Y-m-d H:i:s" string in the DB, so a plain string-equality
+                    // where() against toDateString() never matched and non-recurring
+                    // holidays were silently ignored.
                     $q->where('is_recurring', false)
-                        ->where('date', $localDate->toDateString());
+                        ->whereDate('date', $localDate->toDateString());
                 })->orWhere(function ($q) use ($localDate) {
                     $q->where('is_recurring', true)
                         ->whereMonth('date', $localDate->month)
@@ -150,7 +154,7 @@ class BusinessHoursService implements BusinessHoursCalculator, SlaCalculator
     {
         $defaultId = config('service-desk.sla.default_business_hours_schedule');
 
-        if ($defaultId) {
+        if (is_int($defaultId) || is_string($defaultId)) {
             return BusinessHoursSchedule::find($defaultId);
         }
 

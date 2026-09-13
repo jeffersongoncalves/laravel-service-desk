@@ -36,17 +36,17 @@ class ApprovalDecisionNotification extends Notification implements ShouldQueue
         $status = $approval->status->value;
 
         return (new MailMessage)
-            ->subject(__('service-desk::notifications.approval_decision.subject', [
+            ->subject(__('service-desk::service-desk.notifications.approval_decision.subject', [
                 'service' => $service->name,
                 'status' => $status,
             ]))
-            ->greeting(__('service-desk::notifications.approval_decision.greeting'))
-            ->line(__('service-desk::notifications.approval_decision.body', [
+            ->greeting(__('service-desk::service-desk.notifications.approval_decision.greeting'))
+            ->line(__('service-desk::service-desk.notifications.approval_decision.body', [
                 'service' => $service->name,
                 'status' => $status,
             ]))
             ->when($approval->comment, function (MailMessage $message) use ($approval) {
-                $message->line(__('service-desk::notifications.approval_decision.comment', [
+                $message->line(__('service-desk::service-desk.notifications.approval_decision.comment', [
                     'comment' => $approval->comment,
                 ]));
             });

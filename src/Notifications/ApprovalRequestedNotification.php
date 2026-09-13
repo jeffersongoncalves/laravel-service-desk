@@ -35,16 +35,16 @@ class ApprovalRequestedNotification extends Notification implements ShouldQueue
         $service = $serviceRequest->service;
 
         return (new MailMessage)
-            ->subject(__('service-desk::notifications.approval_requested.subject', [
+            ->subject(__('service-desk::service-desk.notifications.approval_requested.subject', [
                 'service' => $service->name,
             ]))
-            ->greeting(__('service-desk::notifications.approval_requested.greeting'))
-            ->line(__('service-desk::notifications.approval_requested.body', [
+            ->greeting(__('service-desk::service-desk.notifications.approval_requested.greeting'))
+            ->line(__('service-desk::service-desk.notifications.approval_requested.body', [
                 'service' => $service->name,
                 /** @phpstan-ignore property.notFound */
                 'requester' => $serviceRequest->requester->name,
             ]))
-            ->line(__('service-desk::notifications.approval_requested.action_required'));
+            ->line(__('service-desk::service-desk.notifications.approval_requested.action_required'));
     }
 
     /**

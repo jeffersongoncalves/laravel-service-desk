@@ -11,8 +11,8 @@ use JeffersonGoncalves\ServiceDesk\Enums\ApprovalStatus;
 /**
  * @property int $id
  * @property int $service_request_id
- * @property string $approver_type
- * @property int $approver_id
+ * @property string|null $approver_type
+ * @property int|null $approver_id
  * @property ApprovalStatus $status
  * @property string|null $comment
  * @property int $step_order
@@ -48,6 +48,7 @@ class ServiceRequestApproval extends Model
         return $this->belongsTo(ServiceRequest::class, 'service_request_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function approver(): MorphTo
     {
         return $this->morphTo('approver');

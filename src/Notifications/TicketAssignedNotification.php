@@ -38,16 +38,16 @@ class TicketAssignedNotification extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.ticket_assigned.subject'))
-            ->greeting(__('service-desk::notifications.ticket_assigned.greeting'))
-            ->line(__('service-desk::notifications.ticket_assigned.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.ticket_assigned.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.ticket_assigned.greeting'))
+            ->line(__('service-desk::service-desk.notifications.ticket_assigned.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
             ]))
-            ->line(__('service-desk::notifications.ticket_assigned.priority', [
+            ->line(__('service-desk::service-desk.notifications.ticket_assigned.priority', [
                 'priority' => $ticket->priority->label(),
             ]))
-            ->line(__('service-desk::notifications.ticket_assigned.department', [
+            ->line(__('service-desk::service-desk.notifications.ticket_assigned.department', [
                 'department' => $ticket->department->name,
             ]))
             ->withSymfonyMessage(function ($message) use ($ticket) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JeffersonGoncalves\ServiceDesk\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use JeffersonGoncalves\ServiceDesk\Events\InboundEmailProcessed;
 use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
@@ -59,7 +60,7 @@ class ProcessInboundEmail implements ShouldQueue
                 $department = $this->resolveDepartment($inboundEmail);
 
                 $ticket = $this->ticketService->create([
-                    'title' => $inboundEmail->subject ?? __('service-desk::tickets.no_subject'),
+                    'title' => $inboundEmail->subject ?? __('service-desk::service-desk.tickets.no_subject'),
                     'description' => $inboundEmail->text_body ?? $inboundEmail->html_body ?? '',
                     'department_id' => $department?->id,
                     'source' => 'email',
@@ -81,11 +82,11 @@ class ProcessInboundEmail implements ShouldQueue
         }
     }
 
-    protected function resolveUser(InboundEmail $inboundEmail): ?object
+    protected function resolveUser(InboundEmail $inboundEmail): ?Model
     {
         $userModel = config('service-desk.models.user');
 
-        if (! $userModel || ! class_exists($userModel)) {
+        if (! $userModel || ! class_exists($userModel) || ! is_subclass_of($userModel, Model::class)) {
             return null;
         }
 

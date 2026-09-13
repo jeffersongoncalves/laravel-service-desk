@@ -41,13 +41,13 @@ class TicketStatusChangedNotification extends Notification implements ShouldQueu
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.status_changed.subject'))
-            ->greeting(__('service-desk::notifications.status_changed.greeting'))
-            ->line(__('service-desk::notifications.status_changed.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.status_changed.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.status_changed.greeting'))
+            ->line(__('service-desk::service-desk.notifications.status_changed.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
             ]))
-            ->line(__('service-desk::notifications.status_changed.transition', [
+            ->line(__('service-desk::service-desk.notifications.status_changed.transition', [
                 'old' => $this->oldStatus->label(),
                 'new' => $this->newStatus->label(),
             ]))

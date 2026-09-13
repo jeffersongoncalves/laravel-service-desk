@@ -26,7 +26,7 @@ class LogTicketHistory
             'performer_type' => $event->ticket->user_type,
             'performer_id' => $event->ticket->user_id,
             'action' => HistoryAction::Created,
-            'description' => __('service-desk::history.ticket_created'),
+            'description' => __('service-desk::service-desk.history.ticket_created'),
         ]);
     }
 
@@ -40,7 +40,7 @@ class LogTicketHistory
             'field' => 'status',
             'old_value' => $event->oldStatus->value,
             'new_value' => $event->newStatus->value,
-            'description' => __('service-desk::history.status_changed', [
+            'description' => __('service-desk::service-desk.history.status_changed', [
                 'old' => $event->oldStatus->label(),
                 'new' => $event->newStatus->label(),
             ]),
@@ -57,7 +57,7 @@ class LogTicketHistory
             'field' => 'priority',
             'old_value' => $event->oldPriority->value,
             'new_value' => $event->newPriority->value,
-            'description' => __('service-desk::history.priority_changed', [
+            'description' => __('service-desk::service-desk.history.priority_changed', [
                 'old' => $event->oldPriority->label(),
                 'new' => $event->newPriority->label(),
             ]),
@@ -73,7 +73,7 @@ class LogTicketHistory
             'action' => HistoryAction::Assigned,
             'field' => 'assigned_to',
             'new_value' => $event->assignedTo->getKey(),
-            'description' => __('service-desk::history.ticket_assigned', [
+            'description' => __('service-desk::service-desk.history.ticket_assigned', [
                 'agent' => $event->assignedTo->name ?? $event->assignedTo->getKey(),
             ]),
             'metadata' => [
@@ -90,7 +90,7 @@ class LogTicketHistory
             'performer_type' => $event->closedBy?->getMorphClass(),
             'performer_id' => $event->closedBy?->getKey(),
             'action' => HistoryAction::Closed,
-            'description' => __('service-desk::history.ticket_closed'),
+            'description' => __('service-desk::service-desk.history.ticket_closed'),
         ]);
     }
 
@@ -101,7 +101,7 @@ class LogTicketHistory
             'performer_type' => $event->reopenedBy?->getMorphClass(),
             'performer_id' => $event->reopenedBy?->getKey(),
             'action' => HistoryAction::Reopened,
-            'description' => __('service-desk::history.ticket_reopened'),
+            'description' => __('service-desk::service-desk.history.ticket_reopened'),
         ]);
     }
 
@@ -112,7 +112,7 @@ class LogTicketHistory
             'performer_type' => $event->comment->author_type,
             'performer_id' => $event->comment->author_id,
             'action' => HistoryAction::CommentAdded,
-            'description' => __('service-desk::history.comment_added', [
+            'description' => __('service-desk::service-desk.history.comment_added', [
                 'type' => $event->comment->type->value,
             ]),
             'metadata' => [
@@ -130,7 +130,7 @@ class LogTicketHistory
             'performer_type' => $event->attachment->uploaded_by_type,
             'performer_id' => $event->attachment->uploaded_by_id,
             'action' => HistoryAction::AttachmentAdded,
-            'description' => __('service-desk::history.attachment_added', [
+            'description' => __('service-desk::service-desk.history.attachment_added', [
                 'filename' => $event->attachment->file_name,
             ]),
             'metadata' => [
@@ -149,7 +149,7 @@ class LogTicketHistory
             'performer_type' => $event->removedBy?->getMorphClass(),
             'performer_id' => $event->removedBy?->getKey(),
             'action' => HistoryAction::AttachmentRemoved,
-            'description' => __('service-desk::history.attachment_removed', [
+            'description' => __('service-desk::service-desk.history.attachment_removed', [
                 'filename' => $event->attachment->file_name,
             ]),
             'metadata' => [

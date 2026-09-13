@@ -35,7 +35,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
         $ticket = $this->ticket;
         $comment = $this->comment;
         $author = $comment->author;
-        $authorName = $author->name ?? __('service-desk::notifications.unknown_user');
+        $authorName = $author->name ?? __('service-desk::service-desk.notifications.unknown_user');
 
         $subject = str_replace(
             ':reference',
@@ -44,14 +44,14 @@ class NewCommentNotification extends Notification implements ShouldQueue
         );
 
         return (new MailMessage)
-            ->subject($subject.' '.__('service-desk::notifications.new_comment.subject'))
-            ->greeting(__('service-desk::notifications.new_comment.greeting'))
-            ->line(__('service-desk::notifications.new_comment.body', [
+            ->subject($subject.' '.__('service-desk::service-desk.notifications.new_comment.subject'))
+            ->greeting(__('service-desk::service-desk.notifications.new_comment.greeting'))
+            ->line(__('service-desk::service-desk.notifications.new_comment.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
                 'author' => $authorName,
             ]))
-            ->line(__('service-desk::notifications.new_comment.comment_type', [
+            ->line(__('service-desk::service-desk.notifications.new_comment.comment_type', [
                 'type' => $comment->type->value,
             ]))
             ->withSymfonyMessage(function ($message) use ($ticket, $comment) {
