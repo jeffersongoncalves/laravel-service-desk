@@ -7,6 +7,7 @@ use JeffersonGoncalves\ServiceDesk\Exceptions\EmailProcessingException;
 use JeffersonGoncalves\ServiceDesk\Mail\EmailParser;
 use JeffersonGoncalves\ServiceDesk\Models\EmailChannel;
 use Webklex\PHPIMAP\ClientManager;
+use Webklex\PHPIMAP\Message;
 
 class ImapDriver implements EmailDriver
 {
@@ -19,6 +20,8 @@ class ImapDriver implements EmailDriver
 
     /**
      * Poll the IMAP mailbox for new messages.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function poll(EmailChannel $channel): array
     {
@@ -92,8 +95,10 @@ class ImapDriver implements EmailDriver
 
     /**
      * Extract message data from a webklex IMAP message into a raw array.
+     *
+     * @return array<string, mixed>
      */
-    protected function extractMessageData(object $message): array
+    protected function extractMessageData(Message $message): array
     {
         $from = $message->getFrom();
         $to = $message->getTo();

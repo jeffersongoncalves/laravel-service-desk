@@ -15,6 +15,7 @@ class TicketUpdated
     use InteractsWithSockets;
     use SerializesModels;
 
+    /** @param  array<string, mixed>  $changes */
     public function __construct(
         public readonly Ticket $ticket,
         public readonly array $changes = [],

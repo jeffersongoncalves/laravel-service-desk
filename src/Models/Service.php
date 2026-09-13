@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,7 +30,7 @@ use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
  * @property string $visibility
  * @property bool $is_active
  * @property int $sort_order
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -42,6 +43,7 @@ use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
  */
 class Service extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_services';
@@ -107,13 +109,19 @@ class Service extends Model
         return $this->morphToMany(Tag::class, 'taggable', 'service_desk_taggables');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');

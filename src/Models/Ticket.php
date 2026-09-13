@@ -47,7 +47,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
  * @property Carbon|null $closed_at
  * @property Carbon|null $due_at
  * @property Carbon|null $last_replied_at
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -67,6 +67,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
  */
 class Ticket extends Model
 {
+    /** @use HasFactory<TicketFactory> */
     use HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_tickets';
@@ -152,11 +153,13 @@ class Ticket extends Model
         return sprintf('%s-%05d', $prefix, $nextNumber);
     }
 
+    /** @return MorphTo<Model, $this> */
     public function user(): MorphTo
     {
         return $this->morphTo('user');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function assignedTo(): MorphTo
     {
         return $this->morphTo('assignedTo');
@@ -229,19 +232,28 @@ class Ticket extends Model
         return $this->hasOne(ServiceRequest::class, 'ticket_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeByStatus(Builder $query, TicketStatus $status): Builder
     {
         return $query->where('status', $status);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeByPriority(Builder $query, TicketPriority $priority): Builder
     {
         return $query->where('priority', $priority);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOpen(Builder $query): Builder
     {
         return $query->whereNotIn('status', [
@@ -250,7 +262,10 @@ class Ticket extends Model
         ]);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeClosed(Builder $query): Builder
     {
         return $query->whereIn('status', [
@@ -259,7 +274,10 @@ class Ticket extends Model
         ]);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOverdue(Builder $query): Builder
     {
         return $query->whereNotNull('due_at')
@@ -270,7 +288,10 @@ class Ticket extends Model
             ]);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeUnassigned(Builder $query): Builder
     {
         return $query->whereNull('assigned_to_id');

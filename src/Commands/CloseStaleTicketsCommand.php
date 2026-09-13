@@ -22,7 +22,8 @@ class CloseStaleTicketsCommand extends Command
             ? (int) $this->option('days')
             : (int) config('service-desk.ticket.auto_close_days', 7);
 
-        $statusValue = $this->option('status');
+        $statusOption = $this->option('status');
+        $statusValue = is_scalar($statusOption) ? (string) $statusOption : '';
         $dryRun = $this->option('dry-run');
 
         $status = TicketStatus::tryFrom($statusValue);

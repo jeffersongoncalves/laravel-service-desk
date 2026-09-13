@@ -48,6 +48,7 @@ class TicketWatcher extends Model
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function watcher(): MorphTo
     {
         return $this->morphTo('watcher');

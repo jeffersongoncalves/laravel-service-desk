@@ -20,10 +20,10 @@ use JeffersonGoncalves\ServiceDesk\Enums\ServiceRequestStatus;
  * @property int|null $ticket_id
  * @property string $requester_type
  * @property int $requester_id
- * @property array $form_data
+ * @property array<string, mixed> $form_data
  * @property ServiceRequestStatus $status
  * @property string|null $notes
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -77,6 +77,7 @@ class ServiceRequest extends Model
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function requester(): MorphTo
     {
         return $this->morphTo('requester');
@@ -88,7 +89,10 @@ class ServiceRequest extends Model
         return $this->hasMany(ServiceRequestApproval::class, 'service_request_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeByStatus(Builder $query, ServiceRequestStatus $status): Builder
     {
         return $query->where('status', $status);

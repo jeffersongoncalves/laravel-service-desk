@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JeffersonGoncalves\ServiceDesk\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
@@ -19,6 +20,6 @@ class AttachmentRemoved
     public function __construct(
         public readonly Ticket $ticket,
         public readonly TicketAttachment $attachment,
-        public readonly ?object $removedBy = null,
+        public readonly ?Model $removedBy = null,
     ) {}
 }

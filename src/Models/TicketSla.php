@@ -84,7 +84,7 @@ class TicketSla extends Model
 
     public function resume(): void
     {
-        if (! $this->isPaused()) {
+        if ($this->paused_at === null) {
             return;
         }
 

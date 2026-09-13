@@ -8,6 +8,9 @@ class EmailParser
 {
     /**
      * Parse raw email data into a standardized format.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
      */
     public function parse(array $data): array
     {
@@ -33,6 +36,8 @@ class EmailParser
 
     /**
      * Extract or generate a message ID from the email data.
+     *
+     * @param  array<string, mixed>  $data
      */
     public function extractMessageId(array $data): string
     {
@@ -55,6 +60,8 @@ class EmailParser
 
     /**
      * Extract the sender's email address from the data.
+     *
+     * @param  array<string, mixed>  $data
      */
     public function extractFromAddress(array $data): string
     {
@@ -79,6 +86,8 @@ class EmailParser
 
     /**
      * Extract the sender's display name from the data.
+     *
+     * @param  array<string, mixed>  $data
      */
     public function extractFromName(array $data): ?string
     {
@@ -99,6 +108,9 @@ class EmailParser
 
     /**
      * Extract addresses (to/cc) from the data into an array.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<int, string>
      */
     public function extractAddresses(array $data, string $type): array
     {
@@ -131,6 +143,8 @@ class EmailParser
 
     /**
      * Extract the plain text body from the email data.
+     *
+     * @param  array<string, mixed>  $data
      */
     public function extractTextBody(array $data): ?string
     {
@@ -186,10 +200,10 @@ class EmailParser
         }
 
         // Remove quoted lines (lines starting with >)
-        $cleaned = preg_replace('/^>.*$/m', '', $cleaned);
+        $cleaned = preg_replace('/^>.*$/m', '', $cleaned) ?? $cleaned;
 
         // Remove excessive blank lines
-        $cleaned = preg_replace('/\n{3,}/', "\n\n", $cleaned);
+        $cleaned = preg_replace('/\n{3,}/', "\n\n", $cleaned) ?? $cleaned;
 
         return trim($cleaned);
     }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace JeffersonGoncalves\ServiceDesk\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use JeffersonGoncalves\ServiceDesk\Events\CommentAdded;
+use JeffersonGoncalves\ServiceDesk\Models\TicketComment;
 use JeffersonGoncalves\ServiceDesk\Notifications\NewCommentNotification;
 
 class SendCommentAddedNotification implements ShouldQueue
@@ -60,7 +62,7 @@ class SendCommentAddedNotification implements ShouldQueue
         }
     }
 
-    protected function isSameUser(object $user, object $comment): bool
+    protected function isSameUser(Model $user, TicketComment $comment): bool
     {
         return $user->getMorphClass() === $comment->author_type
             && $user->getKey() == $comment->author_id;

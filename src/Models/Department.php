@@ -31,6 +31,7 @@ use JeffersonGoncalves\ServiceDesk\Database\Factories\DepartmentFactory;
  */
 class Department extends Model
 {
+    /** @use HasFactory<DepartmentFactory> */
     use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_departments';
@@ -79,13 +80,19 @@ class Department extends Model
         return $this->hasMany(EmailChannel::class, 'department_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');

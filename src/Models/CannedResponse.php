@@ -3,6 +3,7 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  */
 class CannedResponse extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_canned_responses';
@@ -46,19 +48,28 @@ class CannedResponse extends Model
         return $this->belongsTo(Department::class, 'department_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('title');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeForDepartment(Builder $query, ?int $departmentId): Builder
     {
         return $query->where(function ($q) use ($departmentId) {

@@ -33,6 +33,7 @@ use JeffersonGoncalves\ServiceDesk\Database\Factories\CategoryFactory;
  */
 class Category extends Model
 {
+    /** @use HasFactory<CategoryFactory> */
     use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_categories';
@@ -82,19 +83,28 @@ class Category extends Model
         return $this->hasMany(Ticket::class, 'category_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeRoot(Builder $query): Builder
     {
         return $query->whereNull('parent_id');

@@ -15,13 +15,13 @@ use JeffersonGoncalves\ServiceDesk\Enums\FormFieldType;
  * @property string $label
  * @property FormFieldType $type
  * @property bool $is_required
- * @property array|null $options
- * @property array|null $validation_rules
+ * @property array<int, mixed>|null $options
+ * @property array<string, mixed>|null $validation_rules
  * @property string|null $placeholder
  * @property string|null $help_text
  * @property string|null $default_value
  * @property int $sort_order
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Service $service
@@ -60,7 +60,10 @@ class ServiceFormField extends Model
         return $this->belongsTo(Service::class, 'service_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');

@@ -15,16 +15,19 @@ class CommentService
         protected AttachmentService $attachmentService,
     ) {}
 
+    /** @param  array<string, mixed>  $options */
     public function addReply(Ticket $ticket, Model $author, string $body, array $options = []): TicketComment
     {
         return $this->addComment($ticket, $author, $body, CommentType::Reply, $options);
     }
 
+    /** @param  array<string, mixed>  $options */
     public function addNote(Ticket $ticket, Model $author, string $body, array $options = []): TicketComment
     {
         return $this->addComment($ticket, $author, $body, CommentType::Note, array_merge($options, ['is_internal' => true]));
     }
 
+    /** @param  array<string, mixed>  $options */
     public function addSystemComment(Ticket $ticket, string $body, array $options = []): TicketComment
     {
         return DB::transaction(function () use ($ticket, $body, $options) {
@@ -43,6 +46,7 @@ class CommentService
         });
     }
 
+    /** @param  array<string, mixed>  $options */
     public function addComment(Ticket $ticket, Model $author, string $body, CommentType $type, array $options = []): TicketComment
     {
         return DB::transaction(function () use ($ticket, $author, $body, $type, $options) {
@@ -73,6 +77,6 @@ class CommentService
 
     public function delete(TicketComment $comment): bool
     {
-        return $comment->delete();
+        return (bool) $comment->delete();
     }
 }

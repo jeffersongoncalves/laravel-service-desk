@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method JeffersonGoncalves\\ServiceDesk\\Services\\KnowledgeBaseService\:\:search\(\) should return Illuminate\\Support\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, JeffersonGoncalves\\ServiceDesk\\Models\\KbArticle\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Services/KnowledgeBaseService.php

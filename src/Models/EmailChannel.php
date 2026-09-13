@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string $driver
  * @property string $email_address
- * @property array $settings
+ * @property array<string, mixed> $settings
  * @property bool $is_active
  * @property Carbon|null $last_polled_at
  * @property string|null $last_error
@@ -27,6 +28,7 @@ use Illuminate\Support\Carbon;
  */
 class EmailChannel extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
 
     protected $table = 'service_desk_email_channels';
@@ -60,13 +62,19 @@ class EmailChannel extends Model
         return $this->hasMany(InboundEmail::class, 'email_channel_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeByDriver(Builder $query, string $driver): Builder
     {
         return $query->where('driver', $driver);

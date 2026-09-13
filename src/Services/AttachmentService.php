@@ -57,7 +57,13 @@ class AttachmentService
         $storagePath = config('service-desk.ticket.attachment_path', 'service-desk/attachments');
 
         $destination = $storagePath.'/'.$ticket->uuid.'/'.basename($filePath);
-        Storage::disk($disk)->put($destination, file_get_contents($filePath));
+        $contents = file_get_contents($filePath);
+
+        if ($contents === false) {
+            throw new \RuntimeException("Unable to read file contents from [{$filePath}].");
+        }
+
+        Storage::disk($disk)->put($destination, $contents);
 
         $attachment = TicketAttachment::create([
             'ticket_id' => $ticket->id,
@@ -84,7 +90,7 @@ class AttachmentService
 
         event(new AttachmentRemoved($ticket, $attachment, $removedBy));
 
-        return $attachment->delete();
+        return (bool) $attachment->delete();
     }
 
     /**

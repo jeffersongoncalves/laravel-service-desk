@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +23,7 @@ use Illuminate\Support\Str;
  * @property string $disk
  * @property string $mime_type
  * @property int $file_size
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Ticket $ticket
@@ -31,6 +32,7 @@ use Illuminate\Support\Str;
  */
 class TicketAttachment extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
 
     protected $table = 'service_desk_ticket_attachments';
@@ -79,6 +81,7 @@ class TicketAttachment extends Model
         return $this->belongsTo(TicketComment::class, 'comment_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function uploadedBy(): MorphTo
     {
         return $this->morphTo('uploadedBy');

@@ -46,6 +46,7 @@ class KbArticleFeedback extends Model
         return $this->belongsTo(KbArticle::class, 'article_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function user(): MorphTo
     {
         return $this->morphTo('user');

@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string|null $description
  * @property int|null $business_hours_schedule_id
- * @property array|null $conditions
+ * @property array<string, mixed>|null $conditions
  * @property bool $is_active
  * @property int $sort_order
  * @property Carbon|null $created_at
@@ -71,13 +71,19 @@ class SlaPolicy extends Model
         return $this->hasMany(Ticket::class, 'sla_policy_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');

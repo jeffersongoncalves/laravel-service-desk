@@ -14,6 +14,8 @@ class ThreadResolver
      * 1. In-Reply-To header matching
      * 2. References header matching
      * 3. Subject line reference number matching
+     *
+     * @param  array<string, mixed>  $parsedEmail
      */
     public function resolve(array $parsedEmail): ?Ticket
     {
@@ -24,6 +26,8 @@ class ThreadResolver
 
     /**
      * Resolve by the In-Reply-To header, matching against ticket email_message_id.
+     *
+     * @param  array<string, mixed>  $parsedEmail
      */
     protected function resolveByInReplyTo(array $parsedEmail): ?Ticket
     {
@@ -49,6 +53,8 @@ class ThreadResolver
 
     /**
      * Resolve by the References header, matching against any referenced message ID.
+     *
+     * @param  array<string, mixed>  $parsedEmail
      */
     protected function resolveByReferences(array $parsedEmail): ?Ticket
     {
@@ -61,7 +67,7 @@ class ThreadResolver
         // References can be a space-separated string of message IDs
         $messageIds = is_array($references)
             ? $references
-            : preg_split('/\s+/', trim($references));
+            : (preg_split('/\s+/', trim($references)) ?: []);
 
         $messageIds = array_map(fn (string $id) => trim($id, '<>'), $messageIds);
         $messageIds = array_filter($messageIds);
@@ -86,6 +92,8 @@ class ThreadResolver
      * Resolve by extracting a reference number from the email subject line.
      *
      * Looks for patterns like [SD-00001] or SD-00001 in the subject.
+     *
+     * @param  array<string, mixed>  $parsedEmail
      */
     protected function resolveBySubject(array $parsedEmail): ?Ticket
     {

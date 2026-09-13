@@ -9,6 +9,7 @@ use JeffersonGoncalves\ServiceDesk\Models\ServiceFormField;
 
 class ServiceCatalogService
 {
+    /** @param  array<string, mixed>  $data */
     public function createCategory(array $data): ServiceCategory
     {
         if (empty($data['slug'])) {
@@ -18,6 +19,7 @@ class ServiceCatalogService
         return ServiceCategory::create($data);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateCategory(ServiceCategory $category, array $data): ServiceCategory
     {
         if (isset($data['name']) && empty($data['slug'])) {
@@ -26,14 +28,15 @@ class ServiceCatalogService
 
         $category->update($data);
 
-        return $category->fresh();
+        return $category->fresh() ?? $category;
     }
 
     public function deleteCategory(ServiceCategory $category): bool
     {
-        return $category->delete();
+        return (bool) $category->delete();
     }
 
+    /** @param  array<string, mixed>  $data */
     public function createService(array $data): Service
     {
         if (empty($data['slug'])) {
@@ -43,6 +46,7 @@ class ServiceCatalogService
         return Service::create($data);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateService(Service $service, array $data): Service
     {
         if (isset($data['name']) && empty($data['slug'])) {
@@ -51,14 +55,15 @@ class ServiceCatalogService
 
         $service->update($data);
 
-        return $service->fresh();
+        return $service->fresh() ?? $service;
     }
 
     public function deleteService(Service $service): bool
     {
-        return $service->delete();
+        return (bool) $service->delete();
     }
 
+    /** @param  array<string, mixed>  $data */
     public function createFormField(Service $service, array $data): ServiceFormField
     {
         $data['service_id'] = $service->id;
@@ -66,18 +71,20 @@ class ServiceCatalogService
         return ServiceFormField::create($data);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateFormField(ServiceFormField $formField, array $data): ServiceFormField
     {
         $formField->update($data);
 
-        return $formField->fresh();
+        return $formField->fresh() ?? $formField;
     }
 
     public function deleteFormField(ServiceFormField $formField): bool
     {
-        return $formField->delete();
+        return (bool) $formField->delete();
     }
 
+    /** @param  array<int, int|string>  $orderedIds */
     public function reorderFormFields(Service $service, array $orderedIds): void
     {
         foreach ($orderedIds as $sortOrder => $fieldId) {

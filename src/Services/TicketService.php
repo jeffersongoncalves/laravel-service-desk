@@ -20,6 +20,7 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 
 class TicketService
 {
+    /** @param  array<string, mixed>  $data */
     public function create(array $data, Model $user): Ticket
     {
         return DB::transaction(function () use ($data, $user) {
@@ -41,6 +42,7 @@ class TicketService
         });
     }
 
+    /** @param  array<string, mixed>  $data */
     public function update(Ticket $ticket, array $data, ?Model $performer = null): Ticket
     {
         return DB::transaction(function () use ($ticket, $data, $performer) {
@@ -71,7 +73,7 @@ class TicketService
 
             event(new TicketUpdated($ticket, $changes));
 
-            return $ticket->fresh();
+            return $ticket->fresh() ?? $ticket;
         });
     }
 
@@ -122,7 +124,7 @@ class TicketService
     {
         event(new TicketDeleted($ticket, $performer));
 
-        return $ticket->delete();
+        return (bool) $ticket->delete();
     }
 
     public function findByUuid(string $uuid): Ticket

@@ -18,6 +18,7 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 
 class KnowledgeBaseService implements KnowledgeBaseSearchable
 {
+    /** @param  array<string, mixed>  $data */
     public function createArticle(array $data, Model $author): KbArticle
     {
         return DB::transaction(function () use ($data, $author) {
@@ -44,6 +45,7 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
         });
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateArticle(KbArticle $article, array $data, Model $editor, ?string $changeNotes = null): KbArticle
     {
         return DB::transaction(function () use ($article, $data, $editor, $changeNotes) {
@@ -67,7 +69,7 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
                 $article->update(['current_version' => $newVersion]);
             }
 
-            return $article->fresh();
+            return $article->fresh() ?? $article;
         });
     }
 
@@ -80,7 +82,7 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
 
         event(new ArticlePublished($article));
 
-        return $article->fresh();
+        return $article->fresh() ?? $article;
     }
 
     public function archiveArticle(KbArticle $article): KbArticle
@@ -89,14 +91,15 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
             'status' => ArticleStatus::Archived,
         ]);
 
-        return $article->fresh();
+        return $article->fresh() ?? $article;
     }
 
     public function deleteArticle(KbArticle $article): bool
     {
-        return $article->delete();
+        return (bool) $article->delete();
     }
 
+    /** @param  array<string, mixed>  $data */
     public function createCategory(array $data): KbCategory
     {
         if (! isset($data['slug']) && isset($data['name'])) {
@@ -106,16 +109,17 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
         return KbCategory::create($data);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateCategory(KbCategory $category, array $data): KbCategory
     {
         $category->update($data);
 
-        return $category->fresh();
+        return $category->fresh() ?? $category;
     }
 
     public function deleteCategory(KbCategory $category): bool
     {
-        return $category->delete();
+        return (bool) $category->delete();
     }
 
     public function addFeedback(KbArticle $article, bool $isHelpful, ?Model $user = null, ?string $comment = null, ?string $ipAddress = null): KbArticleFeedback
@@ -141,6 +145,10 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
         return $feedback;
     }
 
+    /**
+     * @param  array<string, mixed>  $options
+     * @return Collection<int, Model>
+     */
     public function search(string $query, array $options = []): Collection
     {
         $builder = KbArticle::query()

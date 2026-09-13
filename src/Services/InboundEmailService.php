@@ -7,6 +7,7 @@ use JeffersonGoncalves\ServiceDesk\Models\InboundEmail;
 
 class InboundEmailService
 {
+    /** @param  array<string, mixed>  $data */
     public function store(array $data): InboundEmail
     {
         $existing = InboundEmail::where('message_id', $data['message_id'])->first();

@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,7 +39,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility;
  * @property int $not_helpful_count
  * @property Carbon|null $published_at
  * @property int $current_version
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -52,6 +53,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\ArticleVisibility;
  */
 class KbArticle extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_kb_articles';
@@ -103,6 +105,7 @@ class KbArticle extends Model
         return $this->belongsTo(KbCategory::class, 'category_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function author(): MorphTo
     {
         return $this->morphTo('author');
@@ -139,13 +142,19 @@ class KbArticle extends Model
         return $this->morphToMany(Tag::class, 'taggable', 'service_desk_taggables');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', ArticleStatus::Published);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeByVisibility(Builder $query, ArticleVisibility $visibility): Builder
     {
         return $query->where('visibility', $visibility);

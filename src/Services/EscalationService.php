@@ -3,6 +3,7 @@
 namespace JeffersonGoncalves\ServiceDesk\Services;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use JeffersonGoncalves\ServiceDesk\Contracts\EscalationHandler;
 use JeffersonGoncalves\ServiceDesk\Enums\EscalationAction;
 use JeffersonGoncalves\ServiceDesk\Enums\SlaBreachType;
@@ -34,10 +35,14 @@ class EscalationService implements EscalationHandler
 
         $userModel = config('service-desk.models.operator', config('service-desk.models.user'));
 
+        if (! is_string($userModel) || ! is_subclass_of($userModel, Model::class)) {
+            return;
+        }
+
         foreach ($notifyUsers as $userId) {
             $user = $userModel::find($userId);
 
-            if ($user && method_exists($user, 'notify')) {
+            if ($user instanceof Model && method_exists($user, 'notify')) {
                 $user->notify(new EscalationNotification($ticket, $rule));
             }
         }

@@ -18,6 +18,8 @@ class SendGridDriver implements EmailDriver
 
     /**
      * SendGrid is webhook-based; polling is not applicable.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function poll(EmailChannel $channel): array
     {
@@ -34,6 +36,9 @@ class SendGridDriver implements EmailDriver
 
     /**
      * Parse an inbound email from a SendGrid webhook payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
      */
     public function parseWebhookPayload(array $payload): array
     {
@@ -65,6 +70,8 @@ class SendGridDriver implements EmailDriver
      * Extract headers from the SendGrid raw headers string.
      *
      * SendGrid sends headers as a single string with each header on its own line.
+     *
+     * @return array<string, string>
      */
     protected function extractHeaders(string $headersString): array
     {
@@ -111,6 +118,9 @@ class SendGridDriver implements EmailDriver
 
     /**
      * Extract attachments from the SendGrid webhook payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<int, array<string, mixed>>
      */
     protected function extractAttachments(array $payload): array
     {

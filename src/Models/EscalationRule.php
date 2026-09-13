@@ -16,7 +16,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\SlaBreachType;
  * @property string $trigger_type
  * @property int $minutes_before
  * @property EscalationAction $action
- * @property array|null $action_config
+ * @property array<string, mixed>|null $action_config
  * @property bool $is_active
  * @property int $sort_order
  * @property Carbon|null $created_at
@@ -51,13 +51,19 @@ class EscalationRule extends Model
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');

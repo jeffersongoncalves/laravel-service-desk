@@ -15,6 +15,10 @@ class TicketTagsChanged
     use InteractsWithSockets;
     use SerializesModels;
 
+    /**
+     * @param  array<int, int|string>  $addedTags
+     * @param  array<int, int|string>  $removedTags
+     */
     public function __construct(
         public readonly Ticket $ticket,
         public readonly array $addedTags = [],

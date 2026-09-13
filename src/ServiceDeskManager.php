@@ -21,11 +21,13 @@ class ServiceDeskManager
         protected AttachmentService $attachmentService,
     ) {}
 
+    /** @param  array<string, mixed>  $data */
     public function createTicket(array $data, Model $user): Ticket
     {
         return $this->ticketService->create($data, $user);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateTicket(Ticket $ticket, array $data, ?Model $performer = null): Ticket
     {
         return $this->ticketService->update($ticket, $data, $performer);
@@ -71,11 +73,13 @@ class ServiceDeskManager
         return $this->ticketService->findByReference($reference);
     }
 
+    /** @param  array<string, mixed>  $options */
     public function addComment(Ticket $ticket, Model $author, string $body, array $options = []): TicketComment
     {
         return $this->commentService->addReply($ticket, $author, $body, $options);
     }
 
+    /** @param  array<string, mixed>  $options */
     public function addNote(Ticket $ticket, Model $author, string $body, array $options = []): TicketComment
     {
         return $this->commentService->addNote($ticket, $author, $body, $options);
@@ -91,11 +95,13 @@ class ServiceDeskManager
         $this->ticketService->removeWatcher($ticket, $watcher);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function createDepartment(array $data): Department
     {
         return $this->departmentService->create($data);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function updateDepartment(Department $department, array $data): Department
     {
         return $this->departmentService->update($department, $data);

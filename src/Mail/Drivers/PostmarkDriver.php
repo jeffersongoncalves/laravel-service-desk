@@ -18,6 +18,8 @@ class PostmarkDriver implements EmailDriver
 
     /**
      * Postmark is webhook-based; polling is not applicable.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function poll(EmailChannel $channel): array
     {
@@ -34,6 +36,9 @@ class PostmarkDriver implements EmailDriver
 
     /**
      * Parse an inbound email from a Postmark webhook payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
      */
     public function parseWebhookPayload(array $payload): array
     {
@@ -64,6 +69,8 @@ class PostmarkDriver implements EmailDriver
 
     /**
      * Extract the sender email address from the FromFull field.
+     *
+     * @param  array<string, mixed>  $payload
      */
     protected function extractFromFullAddress(array $payload): string
     {
@@ -80,6 +87,8 @@ class PostmarkDriver implements EmailDriver
 
     /**
      * Extract the sender name from the FromFull field.
+     *
+     * @param  array<string, mixed>  $payload
      */
     protected function extractFromFullName(array $payload): ?string
     {
@@ -96,6 +105,9 @@ class PostmarkDriver implements EmailDriver
 
     /**
      * Extract email addresses from Postmark's *Full fields (ToFull, CcFull, BccFull).
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<int, string>
      */
     protected function extractFullAddresses(array $payload, string $field): array
     {
@@ -118,6 +130,9 @@ class PostmarkDriver implements EmailDriver
      * Extract headers from Postmark's Headers array into a key-value map.
      *
      * Postmark sends headers as an array of {Name, Value} objects.
+     *
+     * @param  array<int, array<string, mixed>>  $headers
+     * @return array<string, string>
      */
     protected function extractHeaders(array $headers): array
     {
@@ -136,6 +151,9 @@ class PostmarkDriver implements EmailDriver
      * Extract attachments from the Postmark webhook payload.
      *
      * Postmark provides attachment content as base64-encoded strings.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<int, array<string, mixed>>
      */
     protected function extractAttachments(array $payload): array
     {

@@ -56,13 +56,19 @@ class BusinessHoursSchedule extends Model
         return $this->hasMany(SlaPolicy::class, 'business_hours_schedule_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);

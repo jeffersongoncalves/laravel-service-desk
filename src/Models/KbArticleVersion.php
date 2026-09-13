@@ -49,6 +49,7 @@ class KbArticleVersion extends Model
         return $this->belongsTo(KbArticle::class, 'article_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function editor(): MorphTo
     {
         return $this->morphTo('editor');

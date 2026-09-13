@@ -13,6 +13,7 @@ use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 
 class ServiceRequestService
 {
+    /** @param  array<string, mixed>  $formData */
     public function create(Service $service, Model $requester, array $formData, ?string $notes = null): ServiceRequest
     {
         return DB::transaction(function () use ($service, $requester, $formData, $notes) {

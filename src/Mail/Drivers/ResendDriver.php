@@ -20,6 +20,8 @@ class ResendDriver implements EmailDriver
 
     /**
      * Resend is webhook-based; polling is not applicable.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function poll(EmailChannel $channel): array
     {
@@ -36,6 +38,9 @@ class ResendDriver implements EmailDriver
 
     /**
      * Parse an inbound email from a Resend webhook payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
      */
     public function parseWebhookPayload(array $payload): array
     {
@@ -75,6 +80,8 @@ class ResendDriver implements EmailDriver
 
     /**
      * Fetch the full email content from the Resend API.
+     *
+     * @return array<string, mixed>|null
      */
     public function fetchEmailContent(string $emailId): ?array
     {
@@ -112,6 +119,8 @@ class ResendDriver implements EmailDriver
 
     /**
      * Fetch attachments for an email from the Resend API.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function fetchAttachments(string $emailId): array
     {
@@ -138,7 +147,7 @@ class ResendDriver implements EmailDriver
      * Verify a Resend webhook signature using Svix HMAC-SHA256.
      *
      * @param  string  $payload  The raw request body.
-     * @param  array  $headers  The webhook request headers (svix-id, svix-timestamp, svix-signature).
+     * @param  array<string, string>  $headers  The webhook request headers (svix-id, svix-timestamp, svix-signature).
      * @param  string|null  $secret  The webhook secret. Defaults to the configured secret.
      */
     public function verifyWebhookSignature(string $payload, array $headers, ?string $secret = null): bool

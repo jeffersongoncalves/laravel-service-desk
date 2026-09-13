@@ -25,6 +25,7 @@ use JeffersonGoncalves\ServiceDesk\Database\Factories\TagFactory;
  */
 class Tag extends Model
 {
+    /** @use HasFactory<TagFactory> */
     use HasFactory, HasSlug;
 
     protected $table = 'service_desk_tags';

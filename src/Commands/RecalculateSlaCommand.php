@@ -17,7 +17,8 @@ class RecalculateSlaCommand extends Command
 
     public function handle(SlaService $slaService): int
     {
-        $policyId = $this->option('policy');
+        $policyOption = $this->option('policy');
+        $policyId = is_scalar($policyOption) ? (string) $policyOption : null;
 
         $query = Ticket::query()
             ->whereNotIn('status', [

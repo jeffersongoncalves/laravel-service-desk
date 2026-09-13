@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JeffersonGoncalves\ServiceDesk\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
@@ -20,6 +21,6 @@ class TicketStatusChanged
         public readonly Ticket $ticket,
         public readonly TicketStatus $oldStatus,
         public readonly TicketStatus $newStatus,
-        public readonly ?object $performer = null,
+        public readonly ?Model $performer = null,
     ) {}
 }

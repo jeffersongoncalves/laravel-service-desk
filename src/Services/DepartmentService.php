@@ -3,11 +3,13 @@
 namespace JeffersonGoncalves\ServiceDesk\Services;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 
 class DepartmentService
 {
+    /** @param  array<string, mixed>  $data */
     public function create(array $data): Department
     {
         if (empty($data['slug'])) {
@@ -17,6 +19,7 @@ class DepartmentService
         return Department::create($data);
     }
 
+    /** @param  array<string, mixed>  $data */
     public function update(Department $department, array $data): Department
     {
         if (isset($data['name']) && empty($data['slug'])) {
@@ -25,12 +28,12 @@ class DepartmentService
 
         $department->update($data);
 
-        return $department->fresh();
+        return $department->fresh() ?? $department;
     }
 
     public function delete(Department $department): bool
     {
-        return $department->delete();
+        return (bool) $department->delete();
     }
 
     public function addOperator(Department $department, Model $operator, string $role = 'operator'): void
@@ -61,7 +64,8 @@ class DepartmentService
             ->delete();
     }
 
-    public function getOperators(Department $department)
+    /** @return Collection<int, \stdClass> */
+    public function getOperators(Department $department): Collection
     {
         return $department->getConnection()
             ->table('service_desk_department_operator')

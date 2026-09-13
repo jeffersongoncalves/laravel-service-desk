@@ -18,7 +18,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
  * @property string|null $old_value
  * @property string|null $new_value
  * @property string|null $description
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property-read Ticket $ticket
  * @property-read Model|\Eloquent|null $performer
@@ -63,6 +63,7 @@ class TicketHistory extends Model
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function performer(): MorphTo
     {
         return $this->morphTo('performer');

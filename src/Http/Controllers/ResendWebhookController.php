@@ -78,6 +78,10 @@ class ResendWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     protected function fetchEmailContent(array $data): array
     {
         $emailId = $data['email_id'] ?? null;

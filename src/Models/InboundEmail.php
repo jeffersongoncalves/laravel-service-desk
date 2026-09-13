@@ -3,6 +3,7 @@
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,8 +17,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $references
  * @property string $from_address
  * @property string|null $from_name
- * @property array $to_addresses
- * @property array|null $cc_addresses
+ * @property array<int, string> $to_addresses
+ * @property array<int, string>|null $cc_addresses
  * @property string|null $subject
  * @property string|null $text_body
  * @property string|null $html_body
@@ -35,6 +36,7 @@ use Illuminate\Support\Carbon;
  */
 class InboundEmail extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
 
     protected $table = 'service_desk_inbound_emails';
@@ -83,19 +85,28 @@ class InboundEmail extends Model
         return $this->belongsTo(TicketComment::class, 'comment_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopePending(Builder $query): Builder
     {
         return $query->where('status', 'pending');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeProcessed(Builder $query): Builder
     {
         return $query->where('status', 'processed');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeFailed(Builder $query): Builder
     {
         return $query->where('status', 'failed');

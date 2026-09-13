@@ -18,6 +18,8 @@ class MailgunDriver implements EmailDriver
 
     /**
      * Mailgun is webhook-based; polling is not applicable.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function poll(EmailChannel $channel): array
     {
@@ -34,6 +36,9 @@ class MailgunDriver implements EmailDriver
 
     /**
      * Parse an inbound email from a Mailgun webhook payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
      */
     public function parseWebhookPayload(array $payload): array
     {
@@ -61,6 +66,9 @@ class MailgunDriver implements EmailDriver
 
     /**
      * Extract attachments from the Mailgun webhook payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<int, array<string, mixed>>
      */
     protected function extractAttachments(array $payload): array
     {

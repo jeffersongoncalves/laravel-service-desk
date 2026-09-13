@@ -24,7 +24,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
  * @property CommentType $type
  * @property bool $is_internal
  * @property string|null $email_message_id
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -34,6 +34,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
  */
 class TicketComment extends Model
 {
+    /** @use HasFactory<TicketCommentFactory> */
     use HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_ticket_comments';
@@ -67,6 +68,7 @@ class TicketComment extends Model
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function author(): MorphTo
     {
         return $this->morphTo('author');
@@ -78,25 +80,37 @@ class TicketComment extends Model
         return $this->hasMany(TicketAttachment::class, 'comment_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopePublic(Builder $query): Builder
     {
         return $query->where('is_internal', false);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeInternal(Builder $query): Builder
     {
         return $query->where('is_internal', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeReplies(Builder $query): Builder
     {
         return $query->where('type', CommentType::Reply);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeNotes(Builder $query): Builder
     {
         return $query->where('type', CommentType::Note);

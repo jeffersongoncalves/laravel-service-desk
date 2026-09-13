@@ -4,6 +4,7 @@ namespace JeffersonGoncalves\ServiceDesk\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,7 @@ use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
  */
 class KbCategory extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory, HasSlug, SoftDeletes;
 
     protected $table = 'service_desk_kb_categories';
@@ -69,19 +71,28 @@ class KbCategory extends Model
         return $this->hasMany(KbArticle::class, 'category_id');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');
     }
 
-    /** @param Builder<static> $query */
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeRoot(Builder $query): Builder
     {
         return $query->whereNull('parent_id');
