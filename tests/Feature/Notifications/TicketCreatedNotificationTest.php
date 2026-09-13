@@ -1,0 +1,41 @@
+<?php
+
+use JeffersonGoncalves\ServiceDesk\Models\Ticket;
+use JeffersonGoncalves\ServiceDesk\Notifications\TicketCreatedNotification;
+
+beforeEach(function () {
+    $this->ticket = Ticket::factory()->create(['title' => 'Cannot print']);
+});
+
+it('sends via the configured notification channels', function () {
+    config()->set('service-desk.notifications.channels', ['mail', 'database']);
+
+    $notification = new TicketCreatedNotification($this->ticket);
+
+    expect($notification->via((object) []))->toBe(['mail', 'database']);
+});
+
+it('builds a mail message referencing the ticket', function () {
+    $notification = new TicketCreatedNotification($this->ticket);
+
+    $mail = $notification->toMail((object) []);
+
+    expect($mail->subject)->toContain($this->ticket->reference_number);
+});
+
+it('builds an array payload with the ticket data', function () {
+    $notification = new TicketCreatedNotification($this->ticket);
+
+    $array = $notification->toArray((object) []);
+
+    expect($array)->toMatchArray([
+        'ticket_id' => $this->ticket->id,
+        'ticket_uuid' => $this->ticket->uuid,
+        'reference_number' => $this->ticket->reference_number,
+        'title' => 'Cannot print',
+        'status' => $this->ticket->status->value,
+        'priority' => $this->ticket->priority->value,
+        'department' => $this->ticket->department->name,
+        'type' => 'ticket_created',
+    ]);
+});
