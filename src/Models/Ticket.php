@@ -130,10 +130,6 @@ class Ticket extends Model
                 $ticket->uuid = (string) Str::uuid();
             }
 
-            if (empty($ticket->reference_number)) {
-                $ticket->reference_number = static::generateReferenceNumber();
-            }
-
             if (empty($ticket->status)) {
                 $ticket->status = config('service-desk.ticket.default_status', 'open');
             }
@@ -142,15 +138,19 @@ class Ticket extends Model
                 $ticket->priority = config('service-desk.ticket.default_priority', 'medium');
             }
         });
+
+        static::created(function (Ticket $ticket) {
+            if (empty($ticket->reference_number)) {
+                $ticket->forceFill(['reference_number' => static::generateReferenceNumber($ticket->id)])->saveQuietly();
+            }
+        });
     }
 
-    public static function generateReferenceNumber(): string
+    public static function generateReferenceNumber(int $id): string
     {
         $prefix = config('service-desk.ticket.reference_prefix', 'SD');
-        $lastTicket = static::withTrashed()->orderByDesc('id')->first();
-        $nextNumber = $lastTicket ? $lastTicket->id + 1 : 1;
 
-        return sprintf('%s-%05d', $prefix, $nextNumber);
+        return sprintf('%s-%05d', $prefix, $id);
     }
 
     /** @return MorphTo<Model, $this> */

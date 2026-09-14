@@ -105,8 +105,9 @@ it('generates sequential reference numbers', function () {
         'description' => 'Second ticket',
     ]);
 
-    expect($ticket1->reference_number)->toBe('SD-00001')
-        ->and($ticket2->reference_number)->toBe('SD-00002');
+    expect($ticket1->reference_number)->toBe(sprintf('SD-%05d', $ticket1->id))
+        ->and($ticket2->reference_number)->toBe(sprintf('SD-%05d', $ticket2->id))
+        ->and($ticket2->id)->toBe($ticket1->id + 1);
 });
 
 it('does not overwrite provided uuid', function () {
