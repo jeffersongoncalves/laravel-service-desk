@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketCommentFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 
@@ -20,6 +21,8 @@ use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
  * @property int $ticket_id
  * @property string $author_type
  * @property int $author_id
+ * @property string|null $author_name
+ * @property string|null $author_email
  * @property string $body
  * @property CommentType $type
  * @property bool $is_internal
@@ -35,7 +38,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 class TicketComment extends Model
 {
     /** @use HasFactory<TicketCommentFactory> */
-    use HasFactory, SoftDeletes;
+    use HasActorSnapshot, HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_ticket_comments';
 
@@ -49,6 +52,8 @@ class TicketComment extends Model
         'ticket_id',
         'author_type',
         'author_id',
+        'author_name',
+        'author_email',
         'body',
         'type',
         'is_internal',
@@ -72,6 +77,23 @@ class TicketComment extends Model
     public function author(): MorphTo
     {
         return $this->morphTo('author');
+    }
+
+    /**
+     * The comment author, if its class still exists in this app -- null
+     * (never a fatal error) when it doesn't. See HasActorSnapshot.
+     */
+    public function resolvedAuthor(): ?Model
+    {
+        return $this->resolveActor('author', 'author_type');
+    }
+
+    /** @return array<int, array{0: string, 1: string, 2: string, 3: string}> */
+    protected function actorSnapshots(): array
+    {
+        return [
+            ['author_type', 'author_id', 'author_name', 'author_email'],
+        ];
     }
 
     /** @return HasMany<TicketAttachment, $this> */

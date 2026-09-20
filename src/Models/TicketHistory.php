@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
 use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
 
 /**
@@ -13,6 +14,8 @@ use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
  * @property int $ticket_id
  * @property string|null $performer_type
  * @property int|null $performer_id
+ * @property string|null $performer_name
+ * @property string|null $performer_email
  * @property HistoryAction $action
  * @property string|null $field
  * @property string|null $old_value
@@ -25,6 +28,8 @@ use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
  */
 class TicketHistory extends Model
 {
+    use HasActorSnapshot;
+
     public $timestamps = false;
 
     protected $table = 'service_desk_ticket_history';
@@ -33,6 +38,8 @@ class TicketHistory extends Model
         'ticket_id',
         'performer_type',
         'performer_id',
+        'performer_name',
+        'performer_email',
         'action',
         'field',
         'old_value',
@@ -67,5 +74,22 @@ class TicketHistory extends Model
     public function performer(): MorphTo
     {
         return $this->morphTo('performer');
+    }
+
+    /**
+     * The performer, if its class still exists in this app -- null (never a
+     * fatal error) when it doesn't. See HasActorSnapshot.
+     */
+    public function resolvedPerformer(): ?Model
+    {
+        return $this->resolveActor('performer', 'performer_type');
+    }
+
+    /** @return array<int, array{0: string, 1: string, 2: string, 3: string}> */
+    protected function actorSnapshots(): array
+    {
+        return [
+            ['performer_type', 'performer_id', 'performer_name', 'performer_email'],
+        ];
     }
 }

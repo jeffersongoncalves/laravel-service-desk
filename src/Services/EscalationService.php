@@ -47,9 +47,11 @@ class EscalationService implements EscalationHandler
             }
         }
 
-        if ($ticket->assignedTo && ! in_array($ticket->assigned_to_id, $notifyUsers)) {
+        $assignedTo = $ticket->resolvedAssignedTo();
+
+        if ($assignedTo && ! in_array($ticket->assigned_to_id, $notifyUsers)) {
             /** @phpstan-ignore method.notFound */
-            $ticket->assignedTo->notify(new EscalationNotification($ticket, $rule));
+            $assignedTo->notify(new EscalationNotification($ticket, $rule));
         }
     }
 
