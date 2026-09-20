@@ -56,3 +56,27 @@ it('dispatches SlaNearBreach for tickets approaching their due date', function (
 
     Event::assertDispatched(SlaNearBreach::class);
 });
+
+it('does not mark anything breached or dispatch events in dry-run mode', function () {
+    Event::fake([SlaBreached::class, SlaNearBreach::class]);
+
+    $policy = makeSlaPolicyForBreach();
+    $ticket = Ticket::factory()->priority(TicketPriority::Medium)->create();
+
+    TicketSla::create([
+        'ticket_id' => $ticket->id,
+        'sla_policy_id' => $policy->id,
+        'priority_at_assignment' => TicketPriority::Medium->value,
+        'first_response_due_at' => now()->subHour(),
+        'first_response_breached' => false,
+    ]);
+
+    $this->artisan('service-desk:check-sla', ['--dry-run' => true])
+        ->expectsOutputToContain('1 breach(es) found.')
+        ->assertExitCode(0);
+
+    expect(TicketSla::where('ticket_id', $ticket->id)->first()->first_response_breached)->toBeFalse();
+
+    Event::assertNotDispatched(SlaBreached::class);
+    Event::assertNotDispatched(SlaNearBreach::class);
+});

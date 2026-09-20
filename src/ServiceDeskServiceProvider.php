@@ -9,6 +9,7 @@ use JeffersonGoncalves\ServiceDesk\Commands\CloseStaleTicketsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\PollImapMailboxCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\ProcessEscalationsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\RecalculateSlaCommand;
+use JeffersonGoncalves\ServiceDesk\Commands\RunAutomationsCommand;
 use JeffersonGoncalves\ServiceDesk\Contracts\SlaCalculator;
 use JeffersonGoncalves\ServiceDesk\Contracts\TicketTransport;
 use JeffersonGoncalves\ServiceDesk\Events\CommentAdded;
@@ -18,14 +19,19 @@ use JeffersonGoncalves\ServiceDesk\Events\TicketCreated;
 use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
 use JeffersonGoncalves\ServiceDesk\Listeners\LogTicketHistory;
 use JeffersonGoncalves\ServiceDesk\Listeners\ProcessInboundEmail;
+use JeffersonGoncalves\ServiceDesk\Listeners\RunAutomationRules;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendCommentAddedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketAssignedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketCreatedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketStatusChangedNotification;
+use JeffersonGoncalves\ServiceDesk\Listeners\SuggestKbArticles;
 use JeffersonGoncalves\ServiceDesk\Services\AttachmentService;
+use JeffersonGoncalves\ServiceDesk\Services\AutomationService;
 use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
+use JeffersonGoncalves\ServiceDesk\Services\CannedResponseService;
 use JeffersonGoncalves\ServiceDesk\Services\CommentService;
 use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
+use JeffersonGoncalves\ServiceDesk\Services\FeedbackService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 use JeffersonGoncalves\ServiceDesk\Services\Transports\DatabaseTicketTransport;
@@ -49,6 +55,8 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 'create_service_desk_ticket_history_table',
                 'create_service_desk_department_operator_table',
                 'create_service_desk_ticket_watchers_table',
+                'create_service_desk_ticket_feedback_table',
+                'add_actor_snapshot_columns_to_service_desk_tables',
                 'create_service_desk_canned_responses_table',
                 'create_service_desk_email_channels_table',
                 'create_service_desk_inbound_emails_table',
@@ -63,6 +71,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 'create_service_desk_sla_targets_table',
                 'create_service_desk_ticket_sla_table',
                 'create_service_desk_escalation_rules_table',
+                'create_service_desk_automation_rules_table',
                 // Knowledge Base
                 'create_service_desk_kb_categories_table',
                 'create_service_desk_kb_articles_table',
@@ -86,6 +95,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 CheckSlaBreachesCommand::class,
                 ProcessEscalationsCommand::class,
                 RecalculateSlaCommand::class,
+                RunAutomationsCommand::class,
             ]);
     }
 
@@ -102,6 +112,9 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(DepartmentService::class);
         $this->app->singleton(AttachmentService::class);
         $this->app->singleton(InboundEmailService::class);
+        $this->app->singleton(FeedbackService::class);
+        $this->app->singleton(AutomationService::class);
+        $this->app->singleton(CannedResponseService::class);
 
         $this->app->bind(SlaCalculator::class, BusinessHoursService::class);
 
@@ -125,6 +138,8 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
     protected function registerEventListeners(): void
     {
         Event::subscribe(LogTicketHistory::class);
+        Event::subscribe(RunAutomationRules::class);
+        Event::subscribe(SuggestKbArticles::class);
 
         Event::listen(TicketCreated::class, SendTicketCreatedNotification::class);
         Event::listen(TicketStatusChanged::class, SendTicketStatusChangedNotification::class);

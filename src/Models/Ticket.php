@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
@@ -28,8 +29,12 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
  * @property int|null $category_id
  * @property string $user_type
  * @property int $user_id
+ * @property string|null $user_name
+ * @property string|null $user_email
  * @property string|null $assigned_to_type
  * @property int|null $assigned_to_id
+ * @property string|null $assigned_to_name
+ * @property string|null $assigned_to_email
  * @property string $title
  * @property string $description
  * @property TicketStatus $status
@@ -59,6 +64,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
  * @property-read Collection<int, TicketAttachment> $attachments
  * @property-read Collection<int, TicketHistory> $history
  * @property-read Collection<int, TicketWatcher> $watchers
+ * @property-read Collection<int, TicketFeedback> $feedback
  * @property-read SlaPolicy|null $slaPolicy
  * @property-read TicketSla|null $ticketSla
  * @property-read Collection<int, Tag> $tags
@@ -68,7 +74,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 class Ticket extends Model
 {
     /** @use HasFactory<TicketFactory> */
-    use HasFactory, SoftDeletes;
+    use HasActorSnapshot, HasFactory, SoftDeletes;
 
     protected $table = 'service_desk_tickets';
 
@@ -85,8 +91,12 @@ class Ticket extends Model
         'category_id',
         'user_type',
         'user_id',
+        'user_name',
+        'user_email',
         'assigned_to_type',
         'assigned_to_id',
+        'assigned_to_name',
+        'assigned_to_email',
         'title',
         'description',
         'status',
@@ -165,6 +175,33 @@ class Ticket extends Model
         return $this->morphTo('assignedTo');
     }
 
+    /**
+     * The requester, if its class still exists in this app -- null (never a
+     * fatal error) when it doesn't. See HasActorSnapshot.
+     */
+    public function resolvedUser(): ?Model
+    {
+        return $this->resolveActor('user', 'user_type');
+    }
+
+    /**
+     * The assigned operator, if its class still exists in this app -- null
+     * (never a fatal error) when it doesn't. See HasActorSnapshot.
+     */
+    public function resolvedAssignedTo(): ?Model
+    {
+        return $this->resolveActor('assignedTo', 'assigned_to_type');
+    }
+
+    /** @return array<int, array{0: string, 1: string, 2: string, 3: string}> */
+    protected function actorSnapshots(): array
+    {
+        return [
+            ['user_type', 'user_id', 'user_name', 'user_email'],
+            ['assigned_to_type', 'assigned_to_id', 'assigned_to_name', 'assigned_to_email'],
+        ];
+    }
+
     /** @return BelongsTo<Department, $this> */
     public function department(): BelongsTo
     {
@@ -199,6 +236,12 @@ class Ticket extends Model
     public function watchers(): HasMany
     {
         return $this->hasMany(TicketWatcher::class, 'ticket_id');
+    }
+
+    /** @return HasMany<TicketFeedback, $this> */
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(TicketFeedback::class, 'ticket_id');
     }
 
     /** @return BelongsTo<SlaPolicy, $this> */

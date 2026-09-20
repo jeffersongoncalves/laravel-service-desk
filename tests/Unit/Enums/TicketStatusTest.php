@@ -88,3 +88,24 @@ it('checks canTransitionTo correctly', function () {
     expect(TicketStatus::Open->canTransitionTo(TicketStatus::InProgress))->toBeTrue()
         ->and(TicketStatus::Resolved->canTransitionTo(TicketStatus::Pending))->toBeFalse();
 });
+
+it('defines the canonical linear pipeline', function () {
+    expect(TicketStatus::pipelineSteps())->toBe([
+        TicketStatus::Open,
+        TicketStatus::InProgress,
+        TicketStatus::Resolved,
+        TicketStatus::Closed,
+    ]);
+});
+
+it('reports the correct pipeline step for statuses in the pipeline', function () {
+    expect(TicketStatus::Open->pipelineStep())->toBe(1)
+        ->and(TicketStatus::InProgress->pipelineStep())->toBe(2)
+        ->and(TicketStatus::Resolved->pipelineStep())->toBe(3)
+        ->and(TicketStatus::Closed->pipelineStep())->toBe(4);
+});
+
+it('reports the InProgress pipeline step for lateral waiting statuses', function () {
+    expect(TicketStatus::Pending->pipelineStep())->toBe(TicketStatus::InProgress->pipelineStep())
+        ->and(TicketStatus::OnHold->pipelineStep())->toBe(TicketStatus::InProgress->pipelineStep());
+});

@@ -87,7 +87,7 @@ class SlaService
         return null;
     }
 
-    public function checkBreaches(): void
+    public function checkBreaches(bool $dryRun = false): int
     {
         $now = Carbon::now();
 
@@ -118,22 +118,32 @@ class SlaService
             ->with('ticket')
             ->get();
 
+        $breachedCount = 0;
+
         foreach ($ticketSlas as $ticketSla) {
             if (! $ticketSla->first_response_breached
                 && $ticketSla->first_response_due_at
                 && $ticketSla->first_responded_at === null
                 && $ticketSla->first_response_due_at->isPast()
             ) {
-                $ticketSla->update(['first_response_breached' => true]);
-                event(new SlaBreached($ticketSla->ticket, $ticketSla, SlaBreachType::FirstResponse->value));
+                $breachedCount++;
+
+                if (! $dryRun) {
+                    $ticketSla->update(['first_response_breached' => true]);
+                    event(new SlaBreached($ticketSla->ticket, $ticketSla, SlaBreachType::FirstResponse->value));
+                }
             }
 
             if (! $ticketSla->next_response_breached
                 && $ticketSla->next_response_due_at
                 && $ticketSla->next_response_due_at->isPast()
             ) {
-                $ticketSla->update(['next_response_breached' => true]);
-                event(new SlaBreached($ticketSla->ticket, $ticketSla, SlaBreachType::NextResponse->value));
+                $breachedCount++;
+
+                if (! $dryRun) {
+                    $ticketSla->update(['next_response_breached' => true]);
+                    event(new SlaBreached($ticketSla->ticket, $ticketSla, SlaBreachType::NextResponse->value));
+                }
             }
 
             if (! $ticketSla->resolution_breached
@@ -141,13 +151,19 @@ class SlaService
                 && $ticketSla->resolved_at === null
                 && $ticketSla->resolution_due_at->isPast()
             ) {
-                $ticketSla->update(['resolution_breached' => true]);
-                event(new SlaBreached($ticketSla->ticket, $ticketSla, SlaBreachType::Resolution->value));
+                $breachedCount++;
+
+                if (! $dryRun) {
+                    $ticketSla->update(['resolution_breached' => true]);
+                    event(new SlaBreached($ticketSla->ticket, $ticketSla, SlaBreachType::Resolution->value));
+                }
             }
         }
+
+        return $breachedCount;
     }
 
-    public function checkNearBreaches(): void
+    public function checkNearBreaches(bool $dryRun = false): int
     {
         $now = Carbon::now();
         $nearBreachMinutes = (int) config('service-desk.sla.near_breach_minutes', 30);
@@ -184,6 +200,8 @@ class SlaService
             ->with('ticket')
             ->get();
 
+        $nearBreachCount = 0;
+
         foreach ($ticketSlas as $ticketSla) {
             if (! $ticketSla->first_response_breached
                 && $ticketSla->first_response_due_at
@@ -191,8 +209,12 @@ class SlaService
                 && $ticketSla->first_response_due_at->isFuture()
                 && $ticketSla->first_response_due_at->diffInMinutes($now) <= $nearBreachMinutes
             ) {
-                $minutesRemaining = (int) $now->diffInMinutes($ticketSla->first_response_due_at);
-                event(new SlaNearBreach($ticketSla->ticket, $ticketSla, SlaBreachType::FirstResponse->value, $minutesRemaining));
+                $nearBreachCount++;
+
+                if (! $dryRun) {
+                    $minutesRemaining = (int) $now->diffInMinutes($ticketSla->first_response_due_at);
+                    event(new SlaNearBreach($ticketSla->ticket, $ticketSla, SlaBreachType::FirstResponse->value, $minutesRemaining));
+                }
             }
 
             if (! $ticketSla->next_response_breached
@@ -200,8 +222,12 @@ class SlaService
                 && $ticketSla->next_response_due_at->isFuture()
                 && $ticketSla->next_response_due_at->diffInMinutes($now) <= $nearBreachMinutes
             ) {
-                $minutesRemaining = (int) $now->diffInMinutes($ticketSla->next_response_due_at);
-                event(new SlaNearBreach($ticketSla->ticket, $ticketSla, SlaBreachType::NextResponse->value, $minutesRemaining));
+                $nearBreachCount++;
+
+                if (! $dryRun) {
+                    $minutesRemaining = (int) $now->diffInMinutes($ticketSla->next_response_due_at);
+                    event(new SlaNearBreach($ticketSla->ticket, $ticketSla, SlaBreachType::NextResponse->value, $minutesRemaining));
+                }
             }
 
             if (! $ticketSla->resolution_breached
@@ -210,10 +236,16 @@ class SlaService
                 && $ticketSla->resolution_due_at->isFuture()
                 && $ticketSla->resolution_due_at->diffInMinutes($now) <= $nearBreachMinutes
             ) {
-                $minutesRemaining = (int) $now->diffInMinutes($ticketSla->resolution_due_at);
-                event(new SlaNearBreach($ticketSla->ticket, $ticketSla, SlaBreachType::Resolution->value, $minutesRemaining));
+                $nearBreachCount++;
+
+                if (! $dryRun) {
+                    $minutesRemaining = (int) $now->diffInMinutes($ticketSla->resolution_due_at);
+                    event(new SlaNearBreach($ticketSla->ticket, $ticketSla, SlaBreachType::Resolution->value, $minutesRemaining));
+                }
             }
         }
+
+        return $nearBreachCount;
     }
 
     protected function policyMatchesTicket(SlaPolicy $policy, Ticket $ticket): bool
