@@ -408,3 +408,109 @@ it('removes a watcher from a ticket', function () {
 
     expect($ticket->watchers()->count())->toBe(0);
 });
+
+// ── filter() ─────────────────────────────────────────────────────────────────
+
+it('filters tickets by status', function () {
+    Event::fake($this->packageEvents);
+
+    $open = $this->service->create(['department_id' => $this->department->id, 'title' => 'Open one', 'description' => '...'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Closed one', 'description' => '...', 'status' => TicketStatus::Closed], $this->user);
+
+    $results = $this->service->filter(['status' => 'open'])->get();
+
+    expect($results)->toHaveCount(1)
+        ->and($results->first()->id)->toBe($open->id);
+});
+
+it('filters tickets by priority', function () {
+    Event::fake($this->packageEvents);
+
+    $urgent = $this->service->create(['department_id' => $this->department->id, 'title' => 'Urgent one', 'description' => '...', 'priority' => TicketPriority::Urgent], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Low one', 'description' => '...', 'priority' => TicketPriority::Low], $this->user);
+
+    $results = $this->service->filter(['priority' => 'urgent'])->get();
+
+    expect($results)->toHaveCount(1)
+        ->and($results->first()->id)->toBe($urgent->id);
+});
+
+it('ignores an invalid status or priority filter value instead of erroring', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Ticket', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['status' => 'not-a-real-status', 'priority' => 'not-a-real-priority'])->get();
+
+    expect($results)->toHaveCount(1);
+});
+
+it('searches tickets by title, reference number, and description', function () {
+    Event::fake($this->packageEvents);
+
+    $match = $this->service->create(['department_id' => $this->department->id, 'title' => 'Printer is on fire', 'description' => 'Literally smoking'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Unrelated ticket', 'description' => 'Nothing to see here'], $this->user);
+
+    $results = $this->service->filter(['search' => 'fire'])->get();
+
+    expect($results)->toHaveCount(1)
+        ->and($results->first()->id)->toBe($match->id);
+
+    $byReference = $this->service->filter(['search' => $match->reference_number])->get();
+
+    expect($byReference)->toHaveCount(1)
+        ->and($byReference->first()->id)->toBe($match->id);
+});
+
+it('escapes LIKE wildcards in the search term so they are not treated specially', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Contains percent % literally', 'description' => '...'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Does not contain that symbol', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['search' => '%'])->get();
+
+    expect($results)->toHaveCount(1);
+});
+
+it('escapes a literal exclamation mark, the internal escape character itself', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Wow! Great!', 'description' => '...'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'No punctuation here', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['search' => 'Wow!'])->get();
+
+    expect($results)->toHaveCount(1);
+});
+
+it('sorts tickets by status in the enum declared sequence, not alphabetically', function () {
+    Event::fake($this->packageEvents);
+
+    $closed = $this->service->create(['department_id' => $this->department->id, 'title' => 'Closed', 'description' => '...', 'status' => TicketStatus::Closed], $this->user);
+    $open = $this->service->create(['department_id' => $this->department->id, 'title' => 'Open', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['sort' => 'status', 'direction' => 'asc'])->get();
+
+    expect($results->pluck('id')->all())->toBe([$open->id, $closed->id]);
+});
+
+it('sorts tickets by priority in the enum declared sequence, not alphabetically', function () {
+    Event::fake($this->packageEvents);
+
+    $low = $this->service->create(['department_id' => $this->department->id, 'title' => 'Low', 'description' => '...', 'priority' => TicketPriority::Low], $this->user);
+    $urgent = $this->service->create(['department_id' => $this->department->id, 'title' => 'Urgent', 'description' => '...', 'priority' => TicketPriority::Urgent], $this->user);
+
+    $results = $this->service->filter(['sort' => 'priority', 'direction' => 'desc'])->get();
+
+    expect($results->pluck('id')->all())->toBe([$urgent->id, $low->id]);
+});
+
+it('falls back to created_at when an unknown sort column is given', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Ticket', 'description' => '...'], $this->user);
+
+    expect(fn () => $this->service->filter(['sort' => 'assigned_to_id; DROP TABLE users'])->get())
+        ->not->toThrow(Throwable::class);
+});
