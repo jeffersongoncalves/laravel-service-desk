@@ -42,4 +42,38 @@ enum TicketStatus: string
 
         return in_array($this->value, $pauseStatuses);
     }
+
+    /**
+     * The canonical linear sequence for a visual progress stepper, distinct
+     * from allowedTransitions() which describes the full (non-linear) graph
+     * -- e.g. Resolved can go back to Open, which isn't a "step forward".
+     * Pending/OnHold are lateral waiting states, not steps of their own.
+     *
+     * @return array<TicketStatus>
+     */
+    public static function pipelineSteps(): array
+    {
+        return [self::Open, self::InProgress, self::Resolved, self::Closed];
+    }
+
+    /**
+     * 1-based position in pipelineSteps(). Pending/OnHold report the
+     * InProgress position since the ticket is still being worked, just
+     * temporarily waiting.
+     */
+    public function pipelineStep(): int
+    {
+        $status = match ($this) {
+            self::Pending, self::OnHold => self::InProgress,
+            default => $this,
+        };
+
+        foreach (self::pipelineSteps() as $index => $step) {
+            if ($step === $status) {
+                return $index + 1;
+            }
+        }
+
+        return 1;
+    }
 }
