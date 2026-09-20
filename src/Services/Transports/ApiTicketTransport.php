@@ -9,7 +9,9 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidStatusTransitionException;
 use JeffersonGoncalves\ServiceDesk\Exceptions\ServiceDeskApiException;
 use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
+use JeffersonGoncalves\ServiceDesk\Exceptions\UnauthorizedOperatorException;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
+use Throwable;
 
 /**
  * Talks to a central service-desk instance over HTTP instead of a shared
@@ -59,7 +61,7 @@ class ApiTicketTransport implements TicketTransport
                 'actor' => $performer ? $this->actorPayload($performer) : null,
             ]);
         } catch (ServiceDeskApiException $e) {
-            throw $e->status === 404 ? TicketNotFoundException::withUuid($ticket->uuid) : $e;
+            throw $this->remap($e, $ticket);
         }
 
         return $this->hydrate($this->unwrap($response));
@@ -77,15 +79,7 @@ class ApiTicketTransport implements TicketTransport
                 'actor' => $performer ? $this->actorPayload($performer) : null,
             ]);
         } catch (ServiceDeskApiException $e) {
-            if ($e->status === 404) {
-                throw TicketNotFoundException::withUuid($ticket->uuid);
-            }
-
-            if ($e->status === 409) {
-                throw InvalidStatusTransitionException::make($ticket->status, $newStatus);
-            }
-
-            throw $e;
+            throw $this->remap($e, $ticket, $newStatus);
         }
 
         return $this->hydrate($this->unwrap($response));
@@ -139,6 +133,25 @@ class ApiTicketTransport implements TicketTransport
     }
 
     /**
+     * Remaps a transport-level failure to the same exception type the
+     * database transport throws for the equivalent failure, using whatever
+     * local context (ticket, attempted status) this call site has. Anything
+     * without a known business meaning (5xx, unreachable, etc.) passes
+     * through as-is.
+     */
+    protected function remap(ServiceDeskApiException $e, Ticket $ticket, ?TicketStatus $attemptedStatus = null): Throwable
+    {
+        return match ($e->status) {
+            404 => TicketNotFoundException::withUuid($ticket->uuid),
+            403 => UnauthorizedOperatorException::forTicketUuid($ticket->uuid),
+            409 => $attemptedStatus !== null
+                ? InvalidStatusTransitionException::make($ticket->status, $attemptedStatus)
+                : $e,
+            default => $e,
+        };
+    }
+
+    /**
      * @param  array<string, mixed>  $response
      * @return array<string, mixed>
      */
@@ -156,10 +169,26 @@ class ApiTicketTransport implements TicketTransport
      * app's database doesn't have. Callers are expected to only mutate it
      * through this transport, same as with the database transport.
      *
+     * TicketApiResource never exposes the central app's own user_type/user_id
+     * (a satellite has no use for the central app's internal morph identity)
+     * or the auto-increment id, so those stay unset on the hydrated ticket;
+     * requester_name/email map onto the same user_name/user_email columns
+     * the database transport snapshots onto a real row.
+     *
      * @param  array<string, mixed>  $attributes
      */
     protected function hydrate(array $attributes): Ticket
     {
+        if (array_key_exists('requester_name', $attributes)) {
+            $attributes['user_name'] = $attributes['requester_name'];
+            unset($attributes['requester_name']);
+        }
+
+        if (array_key_exists('requester_email', $attributes)) {
+            $attributes['user_email'] = $attributes['requester_email'];
+            unset($attributes['requester_email']);
+        }
+
         $ticket = new Ticket;
         $ticket->forceFill($attributes);
         $ticket->exists = true;

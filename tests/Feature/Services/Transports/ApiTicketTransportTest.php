@@ -14,18 +14,18 @@ beforeEach(function () {
     $this->transport = new ApiTicketTransport(new ServiceDeskApiClient('https://central.test', 'satellite-1', 'secret'));
     $this->user = User::create(['name' => 'John Doe', 'email' => 'john@example.com']);
 
+    // Matches TicketApiResource's exact output shape -- no id/user_type/user_id.
     $this->ticketPayload = fn (array $overrides = []) => array_merge([
-        'id' => 1,
         'uuid' => 'a1b2c3d4-0000-0000-0000-000000000000',
         'reference_number' => 'SD-00001',
         'department_id' => 1,
-        'user_type' => 'user',
-        'user_id' => 1,
         'title' => 'Hi',
         'description' => 'Body',
         'status' => 'open',
         'priority' => 'medium',
         'source' => 'web',
+        'requester_name' => 'John Doe',
+        'requester_email' => 'john@example.com',
     ], $overrides);
 
     $this->fakeTicket = function (array $overrides = []) {
@@ -45,7 +45,9 @@ it('creates a ticket via a signed POST and hydrates the response', function () {
     expect($ticket)->toBeInstanceOf(Ticket::class)
         ->and($ticket->exists)->toBeTrue()
         ->and($ticket->uuid)->toBe('a1b2c3d4-0000-0000-0000-000000000000')
-        ->and($ticket->status)->toBe(TicketStatus::Open);
+        ->and($ticket->status)->toBe(TicketStatus::Open)
+        ->and($ticket->user_name)->toBe('John Doe')
+        ->and($ticket->user_email)->toBe('john@example.com');
 
     Http::assertSent(function ($request) {
         return $request->method() === 'POST'

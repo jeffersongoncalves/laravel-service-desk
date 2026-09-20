@@ -23,6 +23,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 
 /**
  * @property int $id
+ * @property string|null $app_key
  * @property string $uuid
  * @property string $reference_number
  * @property int $department_id
@@ -85,6 +86,7 @@ class Ticket extends Model
     }
 
     protected $fillable = [
+        'app_key',
         'uuid',
         'reference_number',
         'department_id',

@@ -99,7 +99,10 @@ class ServiceDeskApiClient
             return $response->json() ?? [];
         }
 
-        if ($response->status() === 401 || $response->status() === 403) {
+        if ($response->status() === 401) {
+            // The signature-verification middleware only ever aborts with
+            // 401, never 403, so this status is unambiguous: it means our
+            // own signature/secret was rejected, not a business-logic denial.
             throw ServiceDeskApiException::signatureRejected();
         }
 
@@ -107,10 +110,11 @@ class ServiceDeskApiClient
             throw ServiceDeskApiException::validationFailed($response->json('errors') ?? []);
         }
 
-        // 404/409 land here too, carrying their status code -- the caller
-        // (ApiTicketTransport) has the ticket/transition context to remap
-        // those into TicketNotFoundException/InvalidStatusTransitionException,
-        // the same types the database transport throws for the same failures.
+        // 403/404/409 land here too, carrying their status code -- the
+        // caller (ApiTicketTransport) has the ticket/transition context to
+        // remap those into UnauthorizedOperatorException/TicketNotFoundException/
+        // InvalidStatusTransitionException, the same types the database
+        // transport throws for the same failures.
         throw ServiceDeskApiException::failed($response->status(), (string) $response->body());
     }
 }
