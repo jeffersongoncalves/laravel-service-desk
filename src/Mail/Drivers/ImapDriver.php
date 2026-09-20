@@ -94,6 +94,42 @@ class ImapDriver implements EmailDriver
     }
 
     /**
+     * Attempt an IMAP connection with the channel's credentials, without
+     * fetching or altering anything. Returns false instead of throwing on
+     * any failure (missing dependency, bad credentials, network error).
+     */
+    public function testConnection(EmailChannel $channel): bool
+    {
+        try {
+            $this->ensureDependenciesInstalled();
+
+            $settings = $channel->settings ?? [];
+            $globalConfig = config('service-desk.email.inbound.imap', []);
+            $config = array_merge($globalConfig, $settings);
+
+            /** @var ClientManager $clientManager */
+            $clientManager = new ClientManager;
+
+            $client = $clientManager->make([
+                'host' => $config['host'] ?? '',
+                'port' => $config['port'] ?? 993,
+                'encryption' => $config['encryption'] ?? 'ssl',
+                'validate_cert' => $config['validate_cert'] ?? true,
+                'username' => $config['username'] ?? '',
+                'password' => $config['password'] ?? '',
+                'protocol' => 'imap',
+            ]);
+
+            $client->connect();
+            $client->disconnect();
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
      * Extract message data from a webklex IMAP message into a raw array.
      *
      * @return array<string, mixed>

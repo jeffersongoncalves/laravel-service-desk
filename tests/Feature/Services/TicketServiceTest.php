@@ -177,6 +177,35 @@ it('dispatches TicketReopened when transitioning from closed to open', function 
     Event::assertDispatched(TicketReopened::class);
 });
 
+it('rejects an invalid status transition passed through the generic update() data array', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Skip transition',
+        'description' => 'Will attempt an illegal jump',
+    ], $this->user);
+
+    // InProgress -> Open is not in InProgress's allowed transitions.
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    $this->service->update($ticket, ['status' => TicketStatus::Open, 'title' => 'Sneaky bulk edit']);
+})->throws(InvalidStatusTransitionException::class);
+
+it('accepts a raw string status value in the update() data array', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'String status',
+        'description' => 'Status arrives as a raw string, e.g. from a form request',
+    ], $this->user);
+
+    $updated = $this->service->update($ticket, ['status' => 'in_progress']);
+
+    expect($updated->status)->toBe(TicketStatus::InProgress);
+});
+
 it('pauses the SLA clock when status changes to a pausing status', function () {
     Event::fake($this->packageEvents);
     config()->set('service-desk.sla.pause_on_statuses', ['on_hold']);
@@ -310,6 +339,24 @@ it('unassigns a ticket', function () {
 
     expect($result->assigned_to_id)->toBeNull()
         ->and($result->assigned_to_type)->toBeNull();
+});
+
+it('threads the performer through to the TicketUpdated event on unassign', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Unassign performer test',
+        'description' => 'Performer should be carried on the event',
+    ], $this->user);
+
+    $this->service->assign($ticket, $this->operator);
+
+    $this->service->unassign($ticket, $this->operator);
+
+    Event::assertDispatched(TicketUpdated::class, function ($event) {
+        return $event->performer?->is($this->operator);
+    });
 });
 
 // ── close() ─────────────────────────────────────────────────────────────────
