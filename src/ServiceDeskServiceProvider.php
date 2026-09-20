@@ -3,6 +3,7 @@
 namespace JeffersonGoncalves\ServiceDesk;
 
 use Illuminate\Support\Facades\Event;
+use JeffersonGoncalves\ServiceDesk\Api\ServiceDeskSignatureVerifier;
 use JeffersonGoncalves\ServiceDesk\Commands\CheckSlaBreachesCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\CleanInboundEmailsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\CloseStaleTicketsCommand;
@@ -117,6 +118,11 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(CannedResponseService::class);
 
         $this->app->bind(SlaCalculator::class, BusinessHoursService::class);
+
+        $this->app->singleton(
+            ServiceDeskSignatureVerifier::class,
+            fn () => new ServiceDeskSignatureVerifier((int) config('service-desk.api.tolerance', 300))
+        );
 
         $this->app->singleton(ServiceDeskManager::class, function ($app) {
             return new ServiceDeskManager(

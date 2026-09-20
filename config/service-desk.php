@@ -180,6 +180,39 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Ticket API (dual transport)
+    |--------------------------------------------------------------------------
+    |
+    | Lets a satellite app talk to a central service-desk instance over HTTP
+    | instead of a shared database (service-desk.ticket.transport = 'api').
+    | `url`/`app_key`/`secret` are this app's own credentials when it's the
+    | satellite (client) side. `clients` is the central (server) side's
+    | allow-list of apps permitted to call in: each entry's `secrets` is a
+    | list (old + new both valid during rotation) and `actor_types` allow-lists
+    | the requester morph aliases that app may assert on behalf of.
+    |
+    */
+
+    'api' => [
+        'url' => env('SERVICE_DESK_API_URL'),
+        'app_key' => env('SERVICE_DESK_API_APP_KEY'),
+        'secret' => env('SERVICE_DESK_API_SECRET'),
+        'timeout' => env('SERVICE_DESK_API_TIMEOUT', 10),
+        'tolerance' => env('SERVICE_DESK_API_TOLERANCE', 300),
+        'max_inline_attachment' => 2048, // KB
+        'prefix' => 'service-desk/api',
+        'middleware' => ['throttle:60,1'],
+
+        'clients' => [
+            // 'satellite-app-key' => [
+            //     'secrets' => [env('SATELLITE_APP_SECRET')],
+            //     'actor_types' => ['user'],
+            // ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Notification Settings
     |--------------------------------------------------------------------------
     */
