@@ -14,7 +14,9 @@ use JeffersonGoncalves\ServiceDesk\Events\TicketUpdated;
 use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidStatusTransitionException;
 use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
+use JeffersonGoncalves\ServiceDesk\Models\SlaPolicy;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
+use JeffersonGoncalves\ServiceDesk\Models\TicketSla;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 
@@ -202,6 +204,71 @@ it('accepts a raw string status value in the update() data array', function () {
     $updated = $this->service->update($ticket, ['status' => 'in_progress']);
 
     expect($updated->status)->toBe(TicketStatus::InProgress);
+});
+
+it('pauses the SLA clock when status changes to a pausing status', function () {
+    Event::fake($this->packageEvents);
+    config()->set('service-desk.sla.pause_on_statuses', ['on_hold']);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'SLA pause test',
+        'description' => 'Will be put on hold',
+    ], $this->user);
+
+    $policy = SlaPolicy::create(['name' => 'Standard SLA', 'is_active' => true, 'sort_order' => 0]);
+    $ticketSla = TicketSla::create([
+        'ticket_id' => $ticket->id,
+        'sla_policy_id' => $policy->id,
+        'priority_at_assignment' => $ticket->priority->value,
+    ]);
+
+    expect($ticketSla->isPaused())->toBeFalse();
+
+    $this->service->update($ticket, ['status' => TicketStatus::OnHold]);
+
+    expect($ticketSla->fresh()->isPaused())->toBeTrue();
+});
+
+it('resumes the SLA clock when status changes away from a pausing status', function () {
+    Event::fake($this->packageEvents);
+    config()->set('service-desk.sla.pause_on_statuses', ['on_hold']);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'SLA resume test',
+        'description' => 'Will resume from on hold',
+        'status' => TicketStatus::OnHold,
+    ], $this->user);
+
+    $policy = SlaPolicy::create(['name' => 'Standard SLA', 'is_active' => true, 'sort_order' => 0]);
+    $ticketSla = TicketSla::create([
+        'ticket_id' => $ticket->id,
+        'sla_policy_id' => $policy->id,
+        'priority_at_assignment' => $ticket->priority->value,
+        'paused_at' => now()->subMinutes(10),
+    ]);
+
+    expect($ticketSla->isPaused())->toBeTrue();
+
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    expect($ticketSla->fresh()->isPaused())->toBeFalse()
+        ->and($ticketSla->fresh()->paused_minutes)->toBeGreaterThanOrEqual(10);
+});
+
+it('does not crash when changing status on a ticket with no SLA record', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'No SLA test',
+        'description' => 'No ticketSla row exists',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::OnHold]);
+
+    expect($result->status)->toBe(TicketStatus::OnHold);
 });
 
 // ── changeStatus() ──────────────────────────────────────────────────────────
