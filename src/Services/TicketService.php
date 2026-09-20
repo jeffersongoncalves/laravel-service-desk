@@ -54,6 +54,12 @@ class TicketService
             $ticket->save();
 
             if (isset($changes['status']) && $oldStatus !== $ticket->status) {
+                if ($oldStatus->pausesSla() && ! $ticket->status->pausesSla()) {
+                    $ticket->ticketSla?->resume();
+                } elseif (! $oldStatus->pausesSla() && $ticket->status->pausesSla()) {
+                    $ticket->ticketSla?->pause();
+                }
+
                 event(new TicketStatusChanged($ticket, $oldStatus, $ticket->status, $performer));
 
                 if ($ticket->status === TicketStatus::Closed) {
