@@ -26,6 +26,7 @@ abstract class TestCase extends Orchestra
         'create_service_desk_ticket_history_table',
         'create_service_desk_department_operator_table',
         'create_service_desk_ticket_watchers_table',
+        'create_service_desk_ticket_feedback_table',
         'create_service_desk_canned_responses_table',
         'create_service_desk_email_channels_table',
         'create_service_desk_inbound_emails_table',
