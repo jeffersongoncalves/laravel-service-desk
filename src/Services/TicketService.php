@@ -71,7 +71,7 @@ class TicketService
                 event(new TicketPriorityChanged($ticket, $oldPriority, $ticket->priority, $performer));
             }
 
-            event(new TicketUpdated($ticket, $changes));
+            event(new TicketUpdated($ticket, $changes, $performer));
 
             return $ticket->fresh() ?? $ticket;
         });
@@ -105,7 +105,7 @@ class TicketService
         $ticket->assigned_to_id = null;
         $ticket->save();
 
-        event(new TicketUpdated($ticket, ['assigned_to_id' => null]));
+        event(new TicketUpdated($ticket, ['assigned_to_id' => null], $performer));
 
         return $ticket;
     }
