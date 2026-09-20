@@ -50,12 +50,18 @@ class TicketService
             $oldStatus = $ticket->status;
             $oldPriority = $ticket->priority;
 
-            if ($performer && array_key_exists('status', $data)) {
+            if (array_key_exists('status', $data)) {
                 $newStatus = $data['status'] instanceof TicketStatus
                     ? $data['status']
                     : TicketStatus::from($data['status']);
 
-                $this->authorizeStatusChange($ticket, $oldStatus, $newStatus, $performer);
+                if (! $oldStatus->canTransitionTo($newStatus)) {
+                    throw InvalidStatusTransitionException::make($oldStatus, $newStatus);
+                }
+
+                if ($performer) {
+                    $this->authorizeStatusChange($ticket, $oldStatus, $newStatus, $performer);
+                }
             }
 
             $ticket->fill($data);
@@ -63,6 +69,12 @@ class TicketService
             $ticket->save();
 
             if (isset($changes['status']) && $oldStatus !== $ticket->status) {
+                if ($oldStatus->pausesSla() && ! $ticket->status->pausesSla()) {
+                    $ticket->ticketSla?->resume();
+                } elseif (! $oldStatus->pausesSla() && $ticket->status->pausesSla()) {
+                    $ticket->ticketSla?->pause();
+                }
+
                 event(new TicketStatusChanged($ticket, $oldStatus, $ticket->status, $performer));
 
                 if ($ticket->status === TicketStatus::Closed) {
@@ -80,7 +92,7 @@ class TicketService
                 event(new TicketPriorityChanged($ticket, $oldPriority, $ticket->priority, $performer));
             }
 
-            event(new TicketUpdated($ticket, $changes));
+            event(new TicketUpdated($ticket, $changes, $performer));
 
             return $ticket->fresh() ?? $ticket;
         });
@@ -88,12 +100,6 @@ class TicketService
 
     public function changeStatus(Ticket $ticket, TicketStatus $newStatus, ?Model $performer = null): Ticket
     {
-        $oldStatus = $ticket->status;
-
-        if (! $oldStatus->canTransitionTo($newStatus)) {
-            throw InvalidStatusTransitionException::make($oldStatus, $newStatus);
-        }
-
         return $this->update($ticket, ['status' => $newStatus], $performer);
     }
 
@@ -114,7 +120,7 @@ class TicketService
         $ticket->assigned_to_id = null;
         $ticket->save();
 
-        event(new TicketUpdated($ticket, ['assigned_to_id' => null]));
+        event(new TicketUpdated($ticket, ['assigned_to_id' => null], $performer));
 
         return $ticket;
     }
