@@ -10,6 +10,7 @@ use JeffersonGoncalves\ServiceDesk\Commands\PollImapMailboxCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\ProcessEscalationsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\RecalculateSlaCommand;
 use JeffersonGoncalves\ServiceDesk\Contracts\SlaCalculator;
+use JeffersonGoncalves\ServiceDesk\Contracts\TicketTransport;
 use JeffersonGoncalves\ServiceDesk\Events\CommentAdded;
 use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
 use JeffersonGoncalves\ServiceDesk\Events\TicketAssigned;
@@ -27,6 +28,7 @@ use JeffersonGoncalves\ServiceDesk\Services\CommentService;
 use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
+use JeffersonGoncalves\ServiceDesk\Services\Transports\DatabaseTicketTransport;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -89,6 +91,12 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
+        // ponytail: only one transport exists yet, so this binds statically
+        // rather than switching on a config key with a single valid value.
+        // A config-driven switch (service-desk.ticket.transport) arrives
+        // alongside the second (api) transport.
+        $this->app->bind(TicketTransport::class, DatabaseTicketTransport::class);
+
         $this->app->singleton(TicketService::class);
         $this->app->singleton(CommentService::class);
         $this->app->singleton(DepartmentService::class);

@@ -3,154 +3,81 @@
 namespace JeffersonGoncalves\ServiceDesk\Services;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use JeffersonGoncalves\ServiceDesk\Contracts\TicketTransport;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
-use JeffersonGoncalves\ServiceDesk\Events\TicketAssigned;
-use JeffersonGoncalves\ServiceDesk\Events\TicketClosed;
-use JeffersonGoncalves\ServiceDesk\Events\TicketCreated;
-use JeffersonGoncalves\ServiceDesk\Events\TicketDeleted;
-use JeffersonGoncalves\ServiceDesk\Events\TicketPriorityChanged;
-use JeffersonGoncalves\ServiceDesk\Events\TicketReopened;
-use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
-use JeffersonGoncalves\ServiceDesk\Events\TicketUpdated;
-use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidStatusTransitionException;
-use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 
+/**
+ * Thin facade over whichever TicketTransport is bound (config
+ * `service-desk.ticket.transport`, default `database`). Consumers keep
+ * calling TicketService exactly as before -- swapping transports doesn't
+ * change this class's public API.
+ */
 class TicketService
 {
+    public function __construct(
+        protected TicketTransport $transport,
+    ) {}
+
     /** @param  array<string, mixed>  $data */
     public function create(array $data, Model $user): Ticket
     {
-        return DB::transaction(function () use ($data, $user) {
-            $ticket = new Ticket;
-            $ticket->fill($data);
-            $ticket->user_type = $user->getMorphClass();
-            $ticket->user_id = $user->getKey();
-
-            if (! isset($data['source'])) {
-                $ticket->source = 'web';
-            }
-
-            $ticket->save();
-            $ticket->load(['department', 'category']);
-
-            event(new TicketCreated($ticket));
-
-            return $ticket;
-        });
+        return $this->transport->create($data, $user);
     }
 
     /** @param  array<string, mixed>  $data */
     public function update(Ticket $ticket, array $data, ?Model $performer = null): Ticket
     {
-        return DB::transaction(function () use ($ticket, $data, $performer) {
-            $oldStatus = $ticket->status;
-            $oldPriority = $ticket->priority;
-
-            $ticket->fill($data);
-            $changes = $ticket->getDirty();
-            $ticket->save();
-
-            if (isset($changes['status']) && $oldStatus !== $ticket->status) {
-                event(new TicketStatusChanged($ticket, $oldStatus, $ticket->status, $performer));
-
-                if ($ticket->status === TicketStatus::Closed) {
-                    $ticket->update(['closed_at' => now()]);
-                    event(new TicketClosed($ticket, $performer));
-                }
-
-                if ($oldStatus === TicketStatus::Closed && $ticket->status === TicketStatus::Open) {
-                    $ticket->update(['closed_at' => null]);
-                    event(new TicketReopened($ticket, $performer));
-                }
-            }
-
-            if (isset($changes['priority']) && $oldPriority !== $ticket->priority) {
-                event(new TicketPriorityChanged($ticket, $oldPriority, $ticket->priority, $performer));
-            }
-
-            event(new TicketUpdated($ticket, $changes));
-
-            return $ticket->fresh() ?? $ticket;
-        });
+        return $this->transport->update($ticket, $data, $performer);
     }
 
     public function changeStatus(Ticket $ticket, TicketStatus $newStatus, ?Model $performer = null): Ticket
     {
-        $oldStatus = $ticket->status;
-
-        if (! $oldStatus->canTransitionTo($newStatus)) {
-            throw InvalidStatusTransitionException::make($oldStatus, $newStatus);
-        }
-
-        return $this->update($ticket, ['status' => $newStatus], $performer);
+        return $this->transport->changeStatus($ticket, $newStatus, $performer);
     }
 
     public function assign(Ticket $ticket, Model $operator, ?Model $assignedBy = null): Ticket
     {
-        $ticket->assigned_to_type = $operator->getMorphClass();
-        $ticket->assigned_to_id = $operator->getKey();
-        $ticket->save();
-
-        event(new TicketAssigned($ticket, $operator, $assignedBy));
-
-        return $ticket;
+        return $this->transport->assign($ticket, $operator, $assignedBy);
     }
 
     public function unassign(Ticket $ticket, ?Model $performer = null): Ticket
     {
-        $ticket->assigned_to_type = null;
-        $ticket->assigned_to_id = null;
-        $ticket->save();
-
-        event(new TicketUpdated($ticket, ['assigned_to_id' => null]));
-
-        return $ticket;
+        return $this->transport->unassign($ticket, $performer);
     }
 
     public function close(Ticket $ticket, ?Model $performer = null): Ticket
     {
-        return $this->changeStatus($ticket, TicketStatus::Closed, $performer);
+        return $this->transport->close($ticket, $performer);
     }
 
     public function reopen(Ticket $ticket, ?Model $performer = null): Ticket
     {
-        return $this->changeStatus($ticket, TicketStatus::Open, $performer);
+        return $this->transport->reopen($ticket, $performer);
     }
 
     public function delete(Ticket $ticket, ?Model $performer = null): bool
     {
-        event(new TicketDeleted($ticket, $performer));
-
-        return (bool) $ticket->delete();
+        return $this->transport->delete($ticket, $performer);
     }
 
     public function findByUuid(string $uuid): Ticket
     {
-        // Postgres's native uuid column rejects a malformed literal with a raw
-        // SQL error instead of just finding no rows, so validate the format first.
-        $ticket = Str::isUuid($uuid) ? Ticket::where('uuid', $uuid)->first() : null;
-
-        if (! $ticket) {
-            throw TicketNotFoundException::withUuid($uuid);
-        }
-
-        return $ticket;
+        return $this->transport->findByUuid($uuid);
     }
 
     public function findByReference(string $reference): Ticket
     {
-        $ticket = Ticket::where('reference_number', $reference)->first();
-
-        if (! $ticket) {
-            throw TicketNotFoundException::withReference($reference);
-        }
-
-        return $ticket;
+        return $this->transport->findByReference($reference);
     }
 
+    /**
+     * Watcher management stays local to TicketService rather than moving
+     * behind the transport contract -- it isn't part of the dual-transport
+     * surface (help-desk's sibling API driver never had watcher parity
+     * either), and going through the database directly here is fine
+     * whichever transport handles the ticket's own CRUD.
+     */
     public function addWatcher(Ticket $ticket, Model $watcher): void
     {
         $ticket->watchers()->firstOrCreate([
