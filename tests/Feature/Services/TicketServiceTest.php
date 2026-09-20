@@ -13,10 +13,12 @@ use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
 use JeffersonGoncalves\ServiceDesk\Events\TicketUpdated;
 use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidStatusTransitionException;
 use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
+use JeffersonGoncalves\ServiceDesk\Exceptions\UnauthorizedOperatorException;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
 use JeffersonGoncalves\ServiceDesk\Models\SlaPolicy;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Models\TicketSla;
+use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 
@@ -25,6 +27,8 @@ beforeEach(function () {
     $this->department = Department::factory()->create();
     $this->user = User::create(['name' => 'John Doe', 'email' => 'john@example.com']);
     $this->operator = User::create(['name' => 'Jane Operator', 'email' => 'jane@example.com']);
+
+    app(DepartmentService::class)->addOperator($this->department, $this->operator);
 
     $this->packageEvents = [
         TicketCreated::class,
@@ -300,6 +304,91 @@ it('throws exception on invalid status transition', function () {
     // Closed can only go to Open, not InProgress
     $this->service->changeStatus($ticket, TicketStatus::InProgress);
 })->throws(InvalidStatusTransitionException::class);
+
+// ── operator-only status change enforcement ────────────────────────────────
+
+it('allows a department operator to make any valid status change', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Operator authorized',
+        'description' => 'Operator is registered for this department',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::InProgress], $this->operator);
+
+    expect($result->status)->toBe(TicketStatus::InProgress);
+});
+
+it('allows the requester to close their own ticket', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Requester closes',
+        'description' => 'Should be allowed',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::Closed], $this->user);
+
+    expect($result->status)->toBe(TicketStatus::Closed);
+});
+
+it('allows the requester to reopen their own closed ticket', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Requester reopens',
+        'description' => 'Should be allowed',
+        'status' => TicketStatus::Closed,
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::Open], $this->user);
+
+    expect($result->status)->toBe(TicketStatus::Open);
+});
+
+it('rejects the requester setting a non-close status themselves', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Requester forbidden',
+        'description' => 'Requester cannot move to InProgress',
+    ], $this->user);
+
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress], $this->user);
+})->throws(UnauthorizedOperatorException::class);
+
+it('rejects an unrelated third party changing status entirely', function () {
+    Event::fake($this->packageEvents);
+
+    $stranger = User::create(['name' => 'Stranger', 'email' => 'stranger@example.com']);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Stranger forbidden',
+        'description' => 'Neither requester nor operator',
+    ], $this->user);
+
+    $this->service->update($ticket, ['status' => TicketStatus::Closed], $stranger);
+})->throws(UnauthorizedOperatorException::class);
+
+it('skips authorization entirely when no performer is given', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'System call',
+        'description' => 'Internal callers without a performer are unaffected',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    expect($result->status)->toBe(TicketStatus::InProgress);
+});
 
 // ── assign() ────────────────────────────────────────────────────────────────
 

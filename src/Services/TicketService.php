@@ -16,6 +16,7 @@ use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
 use JeffersonGoncalves\ServiceDesk\Events\TicketUpdated;
 use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidStatusTransitionException;
 use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
+use JeffersonGoncalves\ServiceDesk\Exceptions\UnauthorizedOperatorException;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 
 class TicketService
@@ -56,6 +57,10 @@ class TicketService
 
                 if (! $oldStatus->canTransitionTo($newStatus)) {
                     throw InvalidStatusTransitionException::make($oldStatus, $newStatus);
+                }
+
+                if ($performer) {
+                    $this->authorizeStatusChange($ticket, $oldStatus, $newStatus, $performer);
                 }
             }
 
@@ -159,6 +164,39 @@ class TicketService
         }
 
         return $ticket;
+    }
+
+    /**
+     * Enforce that only an operator of the ticket's department -- or the
+     * ticket's own requester closing/reopening their own ticket -- may
+     * change status. The package's own service layer is the only place
+     * this is checked centrally; without it, an API/UI caller is the only
+     * thing standing between a requester and an operator-only transition.
+     */
+    protected function authorizeStatusChange(Ticket $ticket, TicketStatus $oldStatus, TicketStatus $newStatus, Model $performer): void
+    {
+        if ($this->isOperatorForTicket($ticket, $performer)) {
+            return;
+        }
+
+        $isOwnTicket = $ticket->user_type === $performer->getMorphClass()
+            && $ticket->user_id === $performer->getKey();
+
+        $isRequesterAllowedTransition = $newStatus === TicketStatus::Closed
+            || ($oldStatus === TicketStatus::Closed && $newStatus === TicketStatus::Open);
+
+        if (! $isOwnTicket || ! $isRequesterAllowedTransition) {
+            throw UnauthorizedOperatorException::forTicket($ticket->id);
+        }
+    }
+
+    protected function isOperatorForTicket(Ticket $ticket, Model $performer): bool
+    {
+        return DB::table('service_desk_department_operator')
+            ->where('department_id', $ticket->department_id)
+            ->where('operator_type', $performer->getMorphClass())
+            ->where('operator_id', $performer->getKey())
+            ->exists();
     }
 
     public function addWatcher(Ticket $ticket, Model $watcher): void
