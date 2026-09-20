@@ -2,9 +2,11 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Services;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 use JeffersonGoncalves\ServiceDesk\Events\TicketAssigned;
 use JeffersonGoncalves\ServiceDesk\Events\TicketClosed;
@@ -140,6 +142,72 @@ class TicketService
         event(new TicketDeleted($ticket, $performer));
 
         return (bool) $ticket->delete();
+    }
+
+    /**
+     * Filter/search/sort tickets for a listing endpoint. Callers get back a
+     * builder to paginate or further constrain (e.g. scope to a department);
+     * `status`/`priority`/`sort`/`direction` are validated against an
+     * allow-list rather than passed through, and `search` is escaped for
+     * the LIKE wildcards so a literal `%`/`_` in the query can't widen the match.
+     *
+     * @param  array{status?: string, priority?: string, search?: string, sort?: string, direction?: string}  $filters
+     * @return Builder<Ticket>
+     */
+    public function filter(array $filters = []): Builder
+    {
+        $query = Ticket::query();
+
+        if (! empty($filters['status']) && $status = TicketStatus::tryFrom($filters['status'])) {
+            $query->where('status', $status);
+        }
+
+        if (! empty($filters['priority']) && $priority = TicketPriority::tryFrom($filters['priority'])) {
+            $query->where('priority', $priority);
+        }
+
+        if (! empty($filters['search'])) {
+            // SQLite's LIKE has no default escape character (unlike MySQL/Postgres),
+            // and backslash-as-escape-char is itself inconsistent across dialects'
+            // string literal parsing -- '!' is inert everywhere, so it's used
+            // instead and declared explicitly via ESCAPE.
+            $search = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $filters['search']);
+            $like = "%{$search}%";
+
+            $query->where(function (Builder $q) use ($like) {
+                $q->whereRaw("title LIKE ? ESCAPE '!'", [$like])
+                    ->orWhereRaw("reference_number LIKE ? ESCAPE '!'", [$like])
+                    ->orWhereRaw("description LIKE ? ESCAPE '!'", [$like]);
+            });
+        }
+
+        $sortable = ['created_at', 'updated_at', 'due_at', 'title', 'status', 'priority'];
+        $sort = in_array($filters['sort'] ?? null, $sortable, true) ? $filters['sort'] : 'created_at';
+        $direction = strtolower($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+
+        if ($direction === 'asc') {
+            $orderRaw = match ($sort) {
+                'status' => "CASE status WHEN 'open' THEN 1 WHEN 'pending' THEN 2 WHEN 'in_progress' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'resolved' THEN 5 WHEN 'closed' THEN 6 END asc",
+                'priority' => "CASE priority WHEN 'low' THEN 1 WHEN 'medium' THEN 2 WHEN 'high' THEN 3 WHEN 'urgent' THEN 4 END asc",
+                default => null,
+            };
+        } else {
+            $orderRaw = match ($sort) {
+                'status' => "CASE status WHEN 'open' THEN 1 WHEN 'pending' THEN 2 WHEN 'in_progress' THEN 3 WHEN 'on_hold' THEN 4 WHEN 'resolved' THEN 5 WHEN 'closed' THEN 6 END desc",
+                'priority' => "CASE priority WHEN 'low' THEN 1 WHEN 'medium' THEN 2 WHEN 'high' THEN 3 WHEN 'urgent' THEN 4 END desc",
+                default => null,
+            };
+        }
+
+        // Case orderings above mirror TicketStatus::cases() / TicketPriority::cases()
+        // declaration order -- update both if either enum's cases change.
+        if ($orderRaw !== null) {
+            $query->orderByRaw($orderRaw);
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        return $query;
     }
 
     public function findByUuid(string $uuid): Ticket
