@@ -40,6 +40,7 @@ abstract class TestCase extends Orchestra
         'create_service_desk_sla_targets_table',
         'create_service_desk_ticket_sla_table',
         'create_service_desk_escalation_rules_table',
+        'create_service_desk_automation_rules_table',
         // Knowledge Base
         'create_service_desk_kb_categories_table',
         'create_service_desk_kb_articles_table',
