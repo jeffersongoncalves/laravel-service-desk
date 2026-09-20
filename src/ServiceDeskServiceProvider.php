@@ -21,6 +21,7 @@ use JeffersonGoncalves\ServiceDesk\Listeners\SendCommentAddedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketAssignedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketCreatedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketStatusChangedNotification;
+use JeffersonGoncalves\ServiceDesk\Listeners\SuggestKbArticles;
 use JeffersonGoncalves\ServiceDesk\Services\AttachmentService;
 use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
 use JeffersonGoncalves\ServiceDesk\Services\CommentService;
@@ -117,6 +118,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
     protected function registerEventListeners(): void
     {
         Event::subscribe(LogTicketHistory::class);
+        Event::subscribe(SuggestKbArticles::class);
 
         Event::listen(TicketCreated::class, SendTicketCreatedNotification::class);
         Event::listen(TicketStatusChanged::class, SendTicketStatusChangedNotification::class);

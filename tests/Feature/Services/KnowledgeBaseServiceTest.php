@@ -502,3 +502,84 @@ it('does not duplicate article-ticket link', function () {
 
     expect($article->linkedTickets()->count())->toBe(1);
 });
+
+// ── suggestArticles() / updateSuggestedArticles() ──────────────────────────
+
+it('suggests published articles matching the ticket title', function () {
+    Event::fake($this->kbEvents);
+
+    $department = Department::create(['name' => 'IT', 'slug' => 'it']);
+    $user = User::create(['name' => 'User', 'email' => 'user@example.com']);
+
+    $article = $this->service->createArticle([
+        'category_id' => $this->category->id,
+        'title' => 'Reset your password',
+        'slug' => 'reset-your-password',
+        'content' => 'Steps to reset your password',
+    ], $this->author);
+    $this->service->publishArticle($article->fresh());
+
+    $ticket = Ticket::create([
+        'department_id' => $department->id,
+        'user_type' => $user->getMorphClass(),
+        'user_id' => $user->id,
+        // suggestArticles() uses the ticket title as a literal LIKE needle
+        // against article title/content, so it must appear as a substring.
+        'title' => 'reset your password',
+        'description' => 'Cannot reset my password',
+    ]);
+
+    $suggestions = $this->service->suggestArticles($ticket);
+
+    expect($suggestions)->toHaveCount(1)
+        ->and($suggestions->first()->id)->toBe($article->id);
+});
+
+it('returns no suggestions when the KB module is disabled', function () {
+    Event::fake($this->kbEvents);
+    config()->set('service-desk.knowledge_base.enabled', false);
+
+    $department = Department::create(['name' => 'IT', 'slug' => 'it']);
+    $user = User::create(['name' => 'User', 'email' => 'user@example.com']);
+
+    $ticket = Ticket::create([
+        'department_id' => $department->id,
+        'user_type' => $user->getMorphClass(),
+        'user_id' => $user->id,
+        'title' => 'reset password not working',
+        'description' => '...',
+    ]);
+
+    expect($this->service->suggestArticles($ticket))->toBeEmpty();
+});
+
+it('stores suggested article ids under metadata.suggested_articles without clobbering other metadata', function () {
+    Event::fake($this->kbEvents);
+
+    $department = Department::create(['name' => 'IT', 'slug' => 'it']);
+    $user = User::create(['name' => 'User', 'email' => 'user@example.com']);
+
+    $article = $this->service->createArticle([
+        'category_id' => $this->category->id,
+        'title' => 'VPN setup guide',
+        'slug' => 'vpn-setup-guide',
+        'content' => 'How to set up the VPN',
+    ], $this->author);
+    $this->service->publishArticle($article->fresh());
+
+    $ticket = Ticket::create([
+        'department_id' => $department->id,
+        'user_type' => $user->getMorphClass(),
+        'user_id' => $user->id,
+        'title' => 'VPN setup',
+        'description' => 'Need help',
+        'metadata' => ['source_ip' => '10.0.0.1'],
+    ]);
+
+    $this->service->updateSuggestedArticles($ticket);
+
+    $fresh = $ticket->fresh();
+
+    expect($fresh->metadata['suggested_articles'])->toBe([$article->id])
+        ->and($fresh->metadata['source_ip'])->toBe('10.0.0.1');
+});
