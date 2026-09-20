@@ -59,6 +59,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CSAT Settings
+    |--------------------------------------------------------------------------
+    |
+    | auto_reopen_below_rating: null disables auto-reopen entirely. Set to
+    | an int (e.g. 3) to reopen a resolved/closed ticket whenever submitted
+    | feedback rates it below that threshold.
+    |
+    */
+
+    'csat' => [
+        'auto_reopen_below_rating' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Automation Settings
     |--------------------------------------------------------------------------
     */

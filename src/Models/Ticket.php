@@ -64,6 +64,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
  * @property-read Collection<int, TicketAttachment> $attachments
  * @property-read Collection<int, TicketHistory> $history
  * @property-read Collection<int, TicketWatcher> $watchers
+ * @property-read Collection<int, TicketFeedback> $feedback
  * @property-read SlaPolicy|null $slaPolicy
  * @property-read TicketSla|null $ticketSla
  * @property-read Collection<int, Tag> $tags
@@ -235,6 +236,12 @@ class Ticket extends Model
     public function watchers(): HasMany
     {
         return $this->hasMany(TicketWatcher::class, 'ticket_id');
+    }
+
+    /** @return HasMany<TicketFeedback, $this> */
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(TicketFeedback::class, 'ticket_id');
     }
 
     /** @return BelongsTo<SlaPolicy, $this> */

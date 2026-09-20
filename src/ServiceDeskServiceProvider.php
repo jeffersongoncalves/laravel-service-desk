@@ -30,6 +30,7 @@ use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
 use JeffersonGoncalves\ServiceDesk\Services\CannedResponseService;
 use JeffersonGoncalves\ServiceDesk\Services\CommentService;
 use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
+use JeffersonGoncalves\ServiceDesk\Services\FeedbackService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 use Spatie\LaravelPackageTools\Package;
@@ -52,6 +53,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 'create_service_desk_ticket_history_table',
                 'create_service_desk_department_operator_table',
                 'create_service_desk_ticket_watchers_table',
+                'create_service_desk_ticket_feedback_table',
                 'add_actor_snapshot_columns_to_service_desk_tables',
                 'create_service_desk_canned_responses_table',
                 'create_service_desk_email_channels_table',
@@ -102,6 +104,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(DepartmentService::class);
         $this->app->singleton(AttachmentService::class);
         $this->app->singleton(InboundEmailService::class);
+        $this->app->singleton(FeedbackService::class);
         $this->app->singleton(AutomationService::class);
         $this->app->singleton(CannedResponseService::class);
 
