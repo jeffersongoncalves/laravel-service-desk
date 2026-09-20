@@ -175,6 +175,35 @@ it('dispatches TicketReopened when transitioning from closed to open', function 
     Event::assertDispatched(TicketReopened::class);
 });
 
+it('rejects an invalid status transition passed through the generic update() data array', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Skip transition',
+        'description' => 'Will attempt an illegal jump',
+    ], $this->user);
+
+    // InProgress -> Open is not in InProgress's allowed transitions.
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    $this->service->update($ticket, ['status' => TicketStatus::Open, 'title' => 'Sneaky bulk edit']);
+})->throws(InvalidStatusTransitionException::class);
+
+it('accepts a raw string status value in the update() data array', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'String status',
+        'description' => 'Status arrives as a raw string, e.g. from a form request',
+    ], $this->user);
+
+    $updated = $this->service->update($ticket, ['status' => 'in_progress']);
+
+    expect($updated->status)->toBe(TicketStatus::InProgress);
+});
+
 // ── changeStatus() ──────────────────────────────────────────────────────────
 
 it('changes ticket status with valid transition', function () {
