@@ -27,6 +27,7 @@ return [
     */
 
     'ticket' => [
+        'transport' => env('SERVICE_DESK_TICKET_TRANSPORT', 'database'), // database|api
         'reference_prefix' => 'SD',
         'default_status' => 'open',
         'default_priority' => 'medium',
