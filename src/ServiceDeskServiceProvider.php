@@ -3,6 +3,8 @@
 namespace JeffersonGoncalves\ServiceDesk;
 
 use Illuminate\Support\Facades\Event;
+use JeffersonGoncalves\ServiceDesk\Api\ServiceDeskApiClient;
+use JeffersonGoncalves\ServiceDesk\Api\ServiceDeskSignatureVerifier;
 use JeffersonGoncalves\ServiceDesk\Commands\CheckSlaBreachesCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\CleanInboundEmailsCommand;
 use JeffersonGoncalves\ServiceDesk\Commands\CloseStaleTicketsCommand;
@@ -17,6 +19,7 @@ use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
 use JeffersonGoncalves\ServiceDesk\Events\TicketAssigned;
 use JeffersonGoncalves\ServiceDesk\Events\TicketCreated;
 use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
+use JeffersonGoncalves\ServiceDesk\Exceptions\ServiceDeskApiException;
 use JeffersonGoncalves\ServiceDesk\Listeners\LogTicketHistory;
 use JeffersonGoncalves\ServiceDesk\Listeners\ProcessInboundEmail;
 use JeffersonGoncalves\ServiceDesk\Listeners\RunAutomationRules;
@@ -34,6 +37,7 @@ use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\FeedbackService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
+use JeffersonGoncalves\ServiceDesk\Services\Transports\ApiTicketTransport;
 use JeffersonGoncalves\ServiceDesk\Services\Transports\DatabaseTicketTransport;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -57,6 +61,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 'create_service_desk_ticket_watchers_table',
                 'create_service_desk_ticket_feedback_table',
                 'add_actor_snapshot_columns_to_service_desk_tables',
+                'add_app_key_column_to_service_desk_tickets_table',
                 'create_service_desk_canned_responses_table',
                 'create_service_desk_email_channels_table',
                 'create_service_desk_inbound_emails_table',
@@ -88,6 +93,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
             ])
             ->hasTranslations()
             ->hasRoute('webhooks')
+            ->hasRoute('api')
             ->hasCommands([
                 PollImapMailboxCommand::class,
                 CleanInboundEmailsCommand::class,
@@ -101,11 +107,31 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        // ponytail: only one transport exists yet, so this binds statically
-        // rather than switching on a config key with a single valid value.
-        // A config-driven switch (service-desk.ticket.transport) arrives
-        // alongside the second (api) transport.
-        $this->app->bind(TicketTransport::class, DatabaseTicketTransport::class);
+        $this->app->bind(TicketTransport::class, function ($app) {
+            return match (config('service-desk.ticket.transport', 'database')) {
+                'api' => $app->make(ApiTicketTransport::class),
+                default => $app->make(DatabaseTicketTransport::class),
+            };
+        });
+
+        $this->app->singleton(ServiceDeskApiClient::class, function () {
+            $url = config('service-desk.api.url');
+            $appKey = config('service-desk.api.app_key');
+            $secret = config('service-desk.api.secret');
+
+            foreach (['url' => $url, 'app_key' => $appKey, 'secret' => $secret] as $key => $value) {
+                if (! is_string($value) || $value === '') {
+                    throw ServiceDeskApiException::notConfigured("service-desk.api.{$key}");
+                }
+            }
+
+            return new ServiceDeskApiClient(
+                rtrim($url, '/'),
+                $appKey,
+                $secret,
+                (int) config('service-desk.api.timeout', 10),
+            );
+        });
 
         $this->app->singleton(TicketService::class);
         $this->app->singleton(CommentService::class);
@@ -117,6 +143,11 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(CannedResponseService::class);
 
         $this->app->bind(SlaCalculator::class, BusinessHoursService::class);
+
+        $this->app->singleton(
+            ServiceDeskSignatureVerifier::class,
+            fn () => new ServiceDeskSignatureVerifier((int) config('service-desk.api.tolerance', 300))
+        );
 
         $this->app->singleton(ServiceDeskManager::class, function ($app) {
             return new ServiceDeskManager(
