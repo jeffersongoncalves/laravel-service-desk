@@ -114,6 +114,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Automation
+    |--------------------------------------------------------------------------
+    */
+    'automation' => [
+        'trigger' => [
+            'ticket_created' => 'Ticket Created',
+            'ticket_status_changed' => 'Ticket Status Changed',
+            'comment_added' => 'Comment Added',
+        ],
+        'action' => [
+            'reassign' => 'Reassign',
+            'change_priority' => 'Change Priority',
+            'change_status' => 'Change Status',
+            'add_tag' => 'Add Tag',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Knowledge Base
     |--------------------------------------------------------------------------
     */

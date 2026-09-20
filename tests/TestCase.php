@@ -27,6 +27,7 @@ abstract class TestCase extends Orchestra
         'create_service_desk_department_operator_table',
         'create_service_desk_ticket_watchers_table',
         'create_service_desk_ticket_feedback_table',
+        'add_actor_snapshot_columns_to_service_desk_tables',
         'create_service_desk_canned_responses_table',
         'create_service_desk_email_channels_table',
         'create_service_desk_inbound_emails_table',
@@ -41,6 +42,7 @@ abstract class TestCase extends Orchestra
         'create_service_desk_sla_targets_table',
         'create_service_desk_ticket_sla_table',
         'create_service_desk_escalation_rules_table',
+        'create_service_desk_automation_rules_table',
         // Knowledge Base
         'create_service_desk_kb_categories_table',
         'create_service_desk_kb_articles_table',
@@ -112,6 +114,13 @@ abstract class TestCase extends Orchestra
 
         if (! is_dir($tempPath)) {
             mkdir($tempPath, 0755, true);
+        }
+
+        // Stale files from a previous MIGRATION_ORDER (different index prefixes
+        // for the same migration name) would otherwise linger and get loaded
+        // alongside the current set, creating the same table twice.
+        foreach (glob($tempPath.'/*.php') ?: [] as $staleFile) {
+            unlink($staleFile);
         }
 
         foreach (self::MIGRATION_ORDER as $index => $name) {

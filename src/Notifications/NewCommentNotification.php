@@ -34,8 +34,9 @@ class NewCommentNotification extends Notification implements ShouldQueue
     {
         $ticket = $this->ticket;
         $comment = $this->comment;
-        $author = $comment->author;
-        $authorName = $author->name ?? __('service-desk::service-desk.notifications.unknown_user');
+        $authorName = $comment->resolvedAuthor()?->getAttribute('name')
+            ?? $comment->author_name
+            ?? __('service-desk::service-desk.notifications.unknown_user');
 
         $subject = str_replace(
             ':reference',
@@ -56,11 +57,11 @@ class NewCommentNotification extends Notification implements ShouldQueue
             ]))
             ->withSymfonyMessage(function ($message) use ($ticket, $comment) {
                 $domain = parse_url(config('app.url', 'http://localhost'), PHP_URL_HOST) ?? 'localhost';
-                $messageId = "<{$ticket->uuid}-comment-{$comment->id}@{$domain}>";
+                $messageId = "{$ticket->uuid}-comment-{$comment->id}@{$domain}";
 
                 $headers = $message->getHeaders();
                 $headers->addTextHeader('X-ServiceDesk-Ticket-Ref', $ticket->reference_number);
-                $headers->addTextHeader('Message-ID', $messageId);
+                $headers->addIdHeader('Message-ID', $messageId);
                 $headers->addTextHeader('In-Reply-To', "<{$ticket->uuid}-created-{$ticket->id}@{$domain}>");
                 $headers->addTextHeader('References', "<{$ticket->uuid}-created-{$ticket->id}@{$domain}>");
             });
@@ -77,7 +78,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
             'reference_number' => $this->ticket->reference_number,
             'title' => $this->ticket->title,
             'comment_id' => $this->comment->id,
-            'author_name' => $this->comment->author->name ?? null,
+            'author_name' => $this->comment->resolvedAuthor()?->getAttribute('name') ?? $this->comment->author_name,
             'type' => 'new_comment',
         ];
     }

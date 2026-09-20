@@ -13,8 +13,12 @@ use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
 use JeffersonGoncalves\ServiceDesk\Events\TicketUpdated;
 use JeffersonGoncalves\ServiceDesk\Exceptions\InvalidStatusTransitionException;
 use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
+use JeffersonGoncalves\ServiceDesk\Exceptions\UnauthorizedOperatorException;
 use JeffersonGoncalves\ServiceDesk\Models\Department;
+use JeffersonGoncalves\ServiceDesk\Models\SlaPolicy;
 use JeffersonGoncalves\ServiceDesk\Models\Ticket;
+use JeffersonGoncalves\ServiceDesk\Models\TicketSla;
+use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 
@@ -23,6 +27,8 @@ beforeEach(function () {
     $this->department = Department::factory()->create();
     $this->user = User::create(['name' => 'John Doe', 'email' => 'john@example.com']);
     $this->operator = User::create(['name' => 'Jane Operator', 'email' => 'jane@example.com']);
+
+    app(DepartmentService::class)->addOperator($this->department, $this->operator);
 
     $this->packageEvents = [
         TicketCreated::class,
@@ -175,6 +181,100 @@ it('dispatches TicketReopened when transitioning from closed to open', function 
     Event::assertDispatched(TicketReopened::class);
 });
 
+it('rejects an invalid status transition passed through the generic update() data array', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Skip transition',
+        'description' => 'Will attempt an illegal jump',
+    ], $this->user);
+
+    // InProgress -> Open is not in InProgress's allowed transitions.
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    $this->service->update($ticket, ['status' => TicketStatus::Open, 'title' => 'Sneaky bulk edit']);
+})->throws(InvalidStatusTransitionException::class);
+
+it('accepts a raw string status value in the update() data array', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'String status',
+        'description' => 'Status arrives as a raw string, e.g. from a form request',
+    ], $this->user);
+
+    $updated = $this->service->update($ticket, ['status' => 'in_progress']);
+
+    expect($updated->status)->toBe(TicketStatus::InProgress);
+});
+
+it('pauses the SLA clock when status changes to a pausing status', function () {
+    Event::fake($this->packageEvents);
+    config()->set('service-desk.sla.pause_on_statuses', ['on_hold']);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'SLA pause test',
+        'description' => 'Will be put on hold',
+    ], $this->user);
+
+    $policy = SlaPolicy::create(['name' => 'Standard SLA', 'is_active' => true, 'sort_order' => 0]);
+    $ticketSla = TicketSla::create([
+        'ticket_id' => $ticket->id,
+        'sla_policy_id' => $policy->id,
+        'priority_at_assignment' => $ticket->priority->value,
+    ]);
+
+    expect($ticketSla->isPaused())->toBeFalse();
+
+    $this->service->update($ticket, ['status' => TicketStatus::OnHold]);
+
+    expect($ticketSla->fresh()->isPaused())->toBeTrue();
+});
+
+it('resumes the SLA clock when status changes away from a pausing status', function () {
+    Event::fake($this->packageEvents);
+    config()->set('service-desk.sla.pause_on_statuses', ['on_hold']);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'SLA resume test',
+        'description' => 'Will resume from on hold',
+        'status' => TicketStatus::OnHold,
+    ], $this->user);
+
+    $policy = SlaPolicy::create(['name' => 'Standard SLA', 'is_active' => true, 'sort_order' => 0]);
+    $ticketSla = TicketSla::create([
+        'ticket_id' => $ticket->id,
+        'sla_policy_id' => $policy->id,
+        'priority_at_assignment' => $ticket->priority->value,
+        'paused_at' => now()->subMinutes(10),
+    ]);
+
+    expect($ticketSla->isPaused())->toBeTrue();
+
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    expect($ticketSla->fresh()->isPaused())->toBeFalse()
+        ->and($ticketSla->fresh()->paused_minutes)->toBeGreaterThanOrEqual(10);
+});
+
+it('does not crash when changing status on a ticket with no SLA record', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'No SLA test',
+        'description' => 'No ticketSla row exists',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::OnHold]);
+
+    expect($result->status)->toBe(TicketStatus::OnHold);
+});
+
 // ── changeStatus() ──────────────────────────────────────────────────────────
 
 it('changes ticket status with valid transition', function () {
@@ -204,6 +304,91 @@ it('throws exception on invalid status transition', function () {
     // Closed can only go to Open, not InProgress
     $this->service->changeStatus($ticket, TicketStatus::InProgress);
 })->throws(InvalidStatusTransitionException::class);
+
+// ── operator-only status change enforcement ────────────────────────────────
+
+it('allows a department operator to make any valid status change', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Operator authorized',
+        'description' => 'Operator is registered for this department',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::InProgress], $this->operator);
+
+    expect($result->status)->toBe(TicketStatus::InProgress);
+});
+
+it('allows the requester to close their own ticket', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Requester closes',
+        'description' => 'Should be allowed',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::Closed], $this->user);
+
+    expect($result->status)->toBe(TicketStatus::Closed);
+});
+
+it('allows the requester to reopen their own closed ticket', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Requester reopens',
+        'description' => 'Should be allowed',
+        'status' => TicketStatus::Closed,
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::Open], $this->user);
+
+    expect($result->status)->toBe(TicketStatus::Open);
+});
+
+it('rejects the requester setting a non-close status themselves', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Requester forbidden',
+        'description' => 'Requester cannot move to InProgress',
+    ], $this->user);
+
+    $this->service->update($ticket, ['status' => TicketStatus::InProgress], $this->user);
+})->throws(UnauthorizedOperatorException::class);
+
+it('rejects an unrelated third party changing status entirely', function () {
+    Event::fake($this->packageEvents);
+
+    $stranger = User::create(['name' => 'Stranger', 'email' => 'stranger@example.com']);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Stranger forbidden',
+        'description' => 'Neither requester nor operator',
+    ], $this->user);
+
+    $this->service->update($ticket, ['status' => TicketStatus::Closed], $stranger);
+})->throws(UnauthorizedOperatorException::class);
+
+it('skips authorization entirely when no performer is given', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'System call',
+        'description' => 'Internal callers without a performer are unaffected',
+    ], $this->user);
+
+    $result = $this->service->update($ticket, ['status' => TicketStatus::InProgress]);
+
+    expect($result->status)->toBe(TicketStatus::InProgress);
+});
 
 // ── assign() ────────────────────────────────────────────────────────────────
 
@@ -243,6 +428,24 @@ it('unassigns a ticket', function () {
 
     expect($result->assigned_to_id)->toBeNull()
         ->and($result->assigned_to_type)->toBeNull();
+});
+
+it('threads the performer through to the TicketUpdated event on unassign', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Unassign performer test',
+        'description' => 'Performer should be carried on the event',
+    ], $this->user);
+
+    $this->service->assign($ticket, $this->operator);
+
+    $this->service->unassign($ticket, $this->operator);
+
+    Event::assertDispatched(TicketUpdated::class, function ($event) {
+        return $event->performer?->is($this->operator);
+    });
 });
 
 // ── close() ─────────────────────────────────────────────────────────────────
@@ -407,4 +610,110 @@ it('removes a watcher from a ticket', function () {
     $this->service->removeWatcher($ticket, $this->operator);
 
     expect($ticket->watchers()->count())->toBe(0);
+});
+
+// ── filter() ─────────────────────────────────────────────────────────────────
+
+it('filters tickets by status', function () {
+    Event::fake($this->packageEvents);
+
+    $open = $this->service->create(['department_id' => $this->department->id, 'title' => 'Open one', 'description' => '...'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Closed one', 'description' => '...', 'status' => TicketStatus::Closed], $this->user);
+
+    $results = $this->service->filter(['status' => 'open'])->get();
+
+    expect($results)->toHaveCount(1)
+        ->and($results->first()->id)->toBe($open->id);
+});
+
+it('filters tickets by priority', function () {
+    Event::fake($this->packageEvents);
+
+    $urgent = $this->service->create(['department_id' => $this->department->id, 'title' => 'Urgent one', 'description' => '...', 'priority' => TicketPriority::Urgent], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Low one', 'description' => '...', 'priority' => TicketPriority::Low], $this->user);
+
+    $results = $this->service->filter(['priority' => 'urgent'])->get();
+
+    expect($results)->toHaveCount(1)
+        ->and($results->first()->id)->toBe($urgent->id);
+});
+
+it('ignores an invalid status or priority filter value instead of erroring', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Ticket', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['status' => 'not-a-real-status', 'priority' => 'not-a-real-priority'])->get();
+
+    expect($results)->toHaveCount(1);
+});
+
+it('searches tickets by title, reference number, and description', function () {
+    Event::fake($this->packageEvents);
+
+    $match = $this->service->create(['department_id' => $this->department->id, 'title' => 'Printer is on fire', 'description' => 'Literally smoking'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Unrelated ticket', 'description' => 'Nothing to see here'], $this->user);
+
+    $results = $this->service->filter(['search' => 'fire'])->get();
+
+    expect($results)->toHaveCount(1)
+        ->and($results->first()->id)->toBe($match->id);
+
+    $byReference = $this->service->filter(['search' => $match->reference_number])->get();
+
+    expect($byReference)->toHaveCount(1)
+        ->and($byReference->first()->id)->toBe($match->id);
+});
+
+it('escapes LIKE wildcards in the search term so they are not treated specially', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Contains percent % literally', 'description' => '...'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Does not contain that symbol', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['search' => '%'])->get();
+
+    expect($results)->toHaveCount(1);
+});
+
+it('escapes a literal exclamation mark, the internal escape character itself', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Wow! Great!', 'description' => '...'], $this->user);
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'No punctuation here', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['search' => 'Wow!'])->get();
+
+    expect($results)->toHaveCount(1);
+});
+
+it('sorts tickets by status in the enum declared sequence, not alphabetically', function () {
+    Event::fake($this->packageEvents);
+
+    $closed = $this->service->create(['department_id' => $this->department->id, 'title' => 'Closed', 'description' => '...', 'status' => TicketStatus::Closed], $this->user);
+    $open = $this->service->create(['department_id' => $this->department->id, 'title' => 'Open', 'description' => '...'], $this->user);
+
+    $results = $this->service->filter(['sort' => 'status', 'direction' => 'asc'])->get();
+
+    expect($results->pluck('id')->all())->toBe([$open->id, $closed->id]);
+});
+
+it('sorts tickets by priority in the enum declared sequence, not alphabetically', function () {
+    Event::fake($this->packageEvents);
+
+    $low = $this->service->create(['department_id' => $this->department->id, 'title' => 'Low', 'description' => '...', 'priority' => TicketPriority::Low], $this->user);
+    $urgent = $this->service->create(['department_id' => $this->department->id, 'title' => 'Urgent', 'description' => '...', 'priority' => TicketPriority::Urgent], $this->user);
+
+    $results = $this->service->filter(['sort' => 'priority', 'direction' => 'desc'])->get();
+
+    expect($results->pluck('id')->all())->toBe([$urgent->id, $low->id]);
+});
+
+it('falls back to created_at when an unknown sort column is given', function () {
+    Event::fake($this->packageEvents);
+
+    $this->service->create(['department_id' => $this->department->id, 'title' => 'Ticket', 'description' => '...'], $this->user);
+
+    expect(fn () => $this->service->filter(['sort' => 'assigned_to_id; DROP TABLE users'])->get())
+        ->not->toThrow(Throwable::class);
 });

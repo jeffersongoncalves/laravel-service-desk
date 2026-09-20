@@ -177,4 +177,40 @@ class KnowledgeBaseService implements KnowledgeBaseSearchable
     {
         $article->linkedTickets()->syncWithoutDetaching([$ticket->id]);
     }
+
+    /**
+     * Search the KB for articles that might resolve a ticket without agent
+     * involvement, using the ticket's own title as the query.
+     *
+     * @return Collection<int, Model>
+     */
+    public function suggestArticles(Ticket $ticket, int $limit = 5): Collection
+    {
+        if (! config('service-desk.knowledge_base.enabled', true)) {
+            return collect();
+        }
+
+        $query = trim($ticket->title);
+
+        if ($query === '') {
+            return collect();
+        }
+
+        return $this->search($query, ['limit' => $limit]);
+    }
+
+    /**
+     * Recompute and store suggested article IDs on the ticket, under
+     * `metadata.suggested_articles` -- deliberately not a new column/table,
+     * this is a deflection hint the UI can render, not a durable relation.
+     */
+    public function updateSuggestedArticles(Ticket $ticket): void
+    {
+        $articleIds = $this->suggestArticles($ticket)->pluck('id')->all();
+
+        $metadata = $ticket->metadata ?? [];
+        $metadata['suggested_articles'] = $articleIds;
+
+        $ticket->update(['metadata' => $metadata]);
+    }
 }
