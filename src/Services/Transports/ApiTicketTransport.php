@@ -110,6 +110,55 @@ class ApiTicketTransport implements TicketTransport
         throw ServiceDeskApiException::operatorOnly('delete');
     }
 
+    /**
+     * Uploads a file as base64 to a ticket on the central instance. Not part
+     * of TicketTransport -- attachments have no equivalent on the database
+     * transport's own interface, they're handled by AttachmentService there.
+     *
+     * @return array<string, mixed> the created attachment's resource data
+     */
+    public function uploadAttachment(Ticket $ticket, string $fileName, string $mimeType, string $contents, Model $performer): array
+    {
+        try {
+            $response = $this->client->post("tickets/{$ticket->uuid}/attachments", [
+                'file_name' => $fileName,
+                'mime_type' => $mimeType,
+                'contents' => base64_encode($contents),
+                'actor' => $this->actorPayload($performer),
+            ]);
+        } catch (ServiceDeskApiException $e) {
+            throw $this->remap($e, $ticket);
+        }
+
+        return $this->unwrap($response);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function listAttachments(Ticket $ticket): array
+    {
+        try {
+            $response = $this->client->get("tickets/{$ticket->uuid}/attachments");
+        } catch (ServiceDeskApiException $e) {
+            throw $this->remap($e, $ticket);
+        }
+
+        return $response['data'] ?? [];
+    }
+
+    /** Returns the attachment's raw (decoded) contents. */
+    public function downloadAttachment(Ticket $ticket, string $attachmentUuid): string
+    {
+        try {
+            $response = $this->client->get("tickets/{$ticket->uuid}/attachments/{$attachmentUuid}");
+        } catch (ServiceDeskApiException $e) {
+            throw $this->remap($e, $ticket);
+        }
+
+        $contents = $this->unwrap($response)['contents'] ?? '';
+
+        return base64_decode((string) $contents, true) ?: '';
+    }
+
     public function findByUuid(string $uuid): Ticket
     {
         try {

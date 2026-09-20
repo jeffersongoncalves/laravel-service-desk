@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\TicketApiController;
+use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\TicketAttachmentApiController;
 use JeffersonGoncalves\ServiceDesk\Http\Middleware\VerifyServiceDeskApiSignature;
 
 Route::prefix(config('service-desk.api.prefix', 'service-desk/api'))
@@ -27,4 +28,13 @@ Route::prefix(config('service-desk.api.prefix', 'service-desk/api'))
 
         Route::post('tickets/{uuid}/status', [TicketApiController::class, 'changeStatus'])
             ->name('service-desk.api.tickets.change-status');
+
+        Route::get('tickets/{uuid}/attachments', [TicketAttachmentApiController::class, 'index'])
+            ->name('service-desk.api.tickets.attachments.index');
+
+        Route::post('tickets/{uuid}/attachments', [TicketAttachmentApiController::class, 'store'])
+            ->name('service-desk.api.tickets.attachments.store');
+
+        Route::get('tickets/{uuid}/attachments/{attachmentUuid}', [TicketAttachmentApiController::class, 'show'])
+            ->name('service-desk.api.tickets.attachments.show');
     });

@@ -5,12 +5,10 @@ namespace JeffersonGoncalves\ServiceDesk\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Validation\ValidationException;
-use JeffersonGoncalves\ServiceDesk\Api\RemoteActor;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 use JeffersonGoncalves\ServiceDesk\Exceptions\TicketNotFoundException;
+use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\Concerns\ResolvesRemoteActor;
 use JeffersonGoncalves\ServiceDesk\Http\Resources\TicketApiResource;
-use JeffersonGoncalves\ServiceDesk\Models\Ticket;
 use JeffersonGoncalves\ServiceDesk\Services\TicketService;
 
 /**
@@ -29,6 +27,8 @@ use JeffersonGoncalves\ServiceDesk\Services\TicketService;
  */
 class TicketApiController
 {
+    use ResolvesRemoteActor;
+
     public function __construct(protected TicketService $tickets) {}
 
     public function store(Request $request): JsonResponse
@@ -103,42 +103,5 @@ class TicketApiController
         $ticket = $this->tickets->changeStatus($ticket, TicketStatus::from($data['status']), $this->resolveActor($request));
 
         return new TicketApiResource($ticket);
-    }
-
-    protected function findScoped(Request $request, string $uuid): Ticket
-    {
-        $ticket = $this->tickets->findByUuid($uuid);
-
-        if ($ticket->app_key !== $this->appKey($request)) {
-            throw TicketNotFoundException::withUuid($uuid);
-        }
-
-        return $ticket;
-    }
-
-    protected function appKey(Request $request): string
-    {
-        return (string) $request->attributes->get('service_desk_api_app_key');
-    }
-
-    protected function resolveActor(Request $request): RemoteActor
-    {
-        $data = $request->validate([
-            'actor' => ['required', 'array'],
-            'actor.type' => ['required', 'string'],
-            'actor.id' => ['required'],
-            'actor.name' => ['nullable', 'string'],
-            'actor.email' => ['nullable', 'email'],
-        ]);
-
-        $allowedTypes = config('service-desk.api.clients.'.$this->appKey($request).'.actor_types', []);
-
-        if (! in_array($data['actor']['type'], $allowedTypes, true)) {
-            throw ValidationException::withMessages([
-                'actor.type' => ['This app is not allowed to assert that actor type.'],
-            ]);
-        }
-
-        return new RemoteActor($data['actor']);
     }
 }

@@ -82,6 +82,41 @@ class AttachmentService
         return $attachment;
     }
 
+    /**
+     * Stores an attachment from raw bytes already in memory -- for the API
+     * transport, which receives a satellite's file as base64 in a JSON
+     * payload rather than as an uploaded file or a local path.
+     */
+    public function storeFromContents(Ticket $ticket, string $contents, string $fileName, string $mimeType, Model $uploadedBy, ?TicketComment $comment = null): TicketAttachment
+    {
+        $this->validate(
+            (string) pathinfo($fileName, PATHINFO_EXTENSION),
+            (int) ceil(strlen($contents) / 1024)
+        );
+
+        $disk = config('service-desk.ticket.attachment_disk', 'local');
+        $storagePath = config('service-desk.ticket.attachment_path', 'service-desk/attachments');
+        $destination = $storagePath.'/'.$ticket->uuid.'/'.$fileName;
+
+        Storage::disk($disk)->put($destination, $contents);
+
+        $attachment = TicketAttachment::create([
+            'ticket_id' => $ticket->id,
+            'comment_id' => $comment?->id,
+            'uploaded_by_type' => $uploadedBy->getMorphClass(),
+            'uploaded_by_id' => $uploadedBy->getKey(),
+            'file_name' => $fileName,
+            'file_path' => $destination,
+            'disk' => $disk,
+            'mime_type' => $mimeType,
+            'file_size' => strlen($contents),
+        ]);
+
+        event(new AttachmentAdded($ticket, $attachment));
+
+        return $attachment;
+    }
+
     public function delete(TicketAttachment $attachment, ?Model $removedBy = null): bool
     {
         Storage::disk($attachment->disk)->delete($attachment->file_path);

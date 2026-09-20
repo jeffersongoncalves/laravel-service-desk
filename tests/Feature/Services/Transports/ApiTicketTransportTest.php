@@ -151,3 +151,35 @@ it('routes a status key inside update() through the status endpoint instead of a
 
     Http::assertSent(fn ($request) => str_ends_with($request->url(), '/status'));
 });
+
+it('uploads an attachment as base64', function () {
+    $ticket = ($this->fakeTicket)();
+
+    Http::fake(['central.test/*' => Http::response(['data' => ['uuid' => 'att-1', 'file_name' => 'note.txt']], 201)]);
+
+    $result = $this->transport->uploadAttachment($ticket, 'note.txt', 'text/plain', 'hello world', $this->user);
+
+    expect($result['file_name'])->toBe('note.txt');
+
+    Http::assertSent(function ($request) {
+        return $request->url() === 'https://central.test/tickets/a1b2c3d4-0000-0000-0000-000000000000/attachments'
+            && $request['contents'] === base64_encode('hello world')
+            && $request['file_name'] === 'note.txt';
+    });
+});
+
+it('lists attachments', function () {
+    $ticket = ($this->fakeTicket)();
+
+    Http::fake(['central.test/*' => Http::response(['data' => [['uuid' => 'att-1'], ['uuid' => 'att-2']]], 200)]);
+
+    expect($this->transport->listAttachments($ticket))->toHaveCount(2);
+});
+
+it('downloads and decodes an attachment', function () {
+    $ticket = ($this->fakeTicket)();
+
+    Http::fake(['central.test/*' => Http::response(['data' => ['contents' => base64_encode('hello world')]], 200)]);
+
+    expect($this->transport->downloadAttachment($ticket, 'att-1'))->toBe('hello world');
+});
