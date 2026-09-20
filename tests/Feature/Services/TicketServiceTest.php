@@ -274,6 +274,24 @@ it('unassigns a ticket', function () {
         ->and($result->assigned_to_type)->toBeNull();
 });
 
+it('threads the performer through to the TicketUpdated event on unassign', function () {
+    Event::fake($this->packageEvents);
+
+    $ticket = $this->service->create([
+        'department_id' => $this->department->id,
+        'title' => 'Unassign performer test',
+        'description' => 'Performer should be carried on the event',
+    ], $this->user);
+
+    $this->service->assign($ticket, $this->operator);
+
+    $this->service->unassign($ticket, $this->operator);
+
+    Event::assertDispatched(TicketUpdated::class, function ($event) {
+        return $event->performer?->is($this->operator);
+    });
+});
+
 // ── close() ─────────────────────────────────────────────────────────────────
 
 it('closes a ticket', function () {
