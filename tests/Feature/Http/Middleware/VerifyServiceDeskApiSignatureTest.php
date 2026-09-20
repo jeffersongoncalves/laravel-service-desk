@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use JeffersonGoncalves\ServiceDesk\Api\ServiceDeskSignature;
 use JeffersonGoncalves\ServiceDesk\Api\ServiceDeskSigner;
 use JeffersonGoncalves\ServiceDesk\Http\Middleware\VerifyServiceDeskApiSignature;
 
@@ -45,6 +46,21 @@ it('rejects a replayed request (same nonce twice)', function () {
     $headers = $signer->headersFor('POST', '/__test/service-desk-api', $bodyJson);
 
     test()->withHeaders($headers)->postJson('/__test/service-desk-api', $body)->assertOk();
+    test()->withHeaders($headers)->postJson('/__test/service-desk-api', $body)->assertStatus(401);
+});
+
+it('rejects a request re-labeled with another configured client sharing the same secret', function () {
+    config()->set('service-desk.api.clients', [
+        'satellite-1' => ['secrets' => ['shared-secret']],
+        'satellite-2' => ['secrets' => ['shared-secret']],
+    ]);
+
+    $body = ['title' => 'Hi'];
+    $bodyJson = json_encode($body, JSON_THROW_ON_ERROR);
+    $signer = new ServiceDeskSigner('satellite-1', 'shared-secret');
+    $headers = $signer->headersFor('POST', '/__test/service-desk-api', $bodyJson);
+    $headers[ServiceDeskSignature::HEADER_APP] = 'satellite-2';
+
     test()->withHeaders($headers)->postJson('/__test/service-desk-api', $body)->assertStatus(401);
 });
 

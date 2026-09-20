@@ -18,7 +18,7 @@ class ServiceDeskSigner
     {
         $timestamp = (string) time();
         $nonce = ServiceDeskSignature::generateNonce();
-        $canonical = ServiceDeskSignature::canonical($method, $requestUri, $timestamp, $nonce, $body);
+        $canonical = ServiceDeskSignature::canonical($this->appKey, $method, $requestUri, $timestamp, $nonce, $body);
 
         return [
             ServiceDeskSignature::HEADER_APP => $this->appKey,

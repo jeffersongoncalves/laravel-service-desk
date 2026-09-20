@@ -2,10 +2,11 @@
 
 use JeffersonGoncalves\ServiceDesk\Api\ServiceDeskSignature;
 
-it('builds a canonical string from method, uri, timestamp, nonce, and a body hash', function () {
-    $canonical = ServiceDeskSignature::canonical('post', '/service-desk/api/tickets', '1700000000', 'abc123', '{"title":"Hi"}');
+it('builds a canonical string from app key, method, uri, timestamp, nonce, and a body hash', function () {
+    $canonical = ServiceDeskSignature::canonical('satellite-1', 'post', '/service-desk/api/tickets', '1700000000', 'abc123', '{"title":"Hi"}');
 
     expect($canonical)->toBe(implode("\n", [
+        'satellite-1',
         'POST',
         '/service-desk/api/tickets',
         '1700000000',
@@ -14,8 +15,16 @@ it('builds a canonical string from method, uri, timestamp, nonce, and a body has
     ]));
 });
 
+it('produces a different canonical string (and signature) when only the app key changes', function () {
+    $a = ServiceDeskSignature::canonical('satellite-1', 'POST', '/foo', '1700000000', 'abc123', 'body');
+    $b = ServiceDeskSignature::canonical('satellite-2', 'POST', '/foo', '1700000000', 'abc123', 'body');
+
+    expect($a)->not->toBe($b)
+        ->and(ServiceDeskSignature::sign($a, 'shared-secret'))->not->toBe(ServiceDeskSignature::sign($b, 'shared-secret'));
+});
+
 it('signs a canonical string deterministically for the same secret', function () {
-    $canonical = ServiceDeskSignature::canonical('POST', '/foo', '1700000000', 'abc123', 'body');
+    $canonical = ServiceDeskSignature::canonical('satellite-1', 'POST', '/foo', '1700000000', 'abc123', 'body');
 
     expect(ServiceDeskSignature::sign($canonical, 'secret'))
         ->toBe('sha256='.hash_hmac('sha256', $canonical, 'secret'))

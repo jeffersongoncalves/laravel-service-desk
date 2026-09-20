@@ -45,7 +45,7 @@ it('rejects a stale timestamp outside the tolerance window', function () {
     $uri = '/service-desk/api/tickets';
     $timestamp = (string) (time() - 600);
     $nonce = str_repeat('a', 32);
-    $canonical = ServiceDeskSignature::canonical('POST', $uri, $timestamp, $nonce, 'body');
+    $canonical = ServiceDeskSignature::canonical('satellite-1', 'POST', $uri, $timestamp, $nonce, 'body');
     $signature = ServiceDeskSignature::sign($canonical, 'secret');
 
     $request = Request::create($uri, 'POST', [], [], [], [], 'body');
@@ -69,4 +69,14 @@ it('rejects a request missing the app header', function () use ($signedRequest) 
     $request->headers->remove(ServiceDeskSignature::HEADER_APP);
 
     expect((new ServiceDeskSignatureVerifier)->verify($request, 'secret'))->toBeFalse();
+});
+
+it('rejects a request re-labeled with another app key even when both share the same secret', function () use ($signedRequest) {
+    // Two misconfigured clients sharing a secret shouldn't be able to
+    // impersonate each other just by swapping the app-key header -- the
+    // signature must be bound to the app key it was actually issued for.
+    $request = $signedRequest('POST', '/service-desk/api/tickets', 'body', 'satellite-1', 'shared-secret');
+    $request->headers->set(ServiceDeskSignature::HEADER_APP, 'satellite-2');
+
+    expect((new ServiceDeskSignatureVerifier)->verify($request, 'shared-secret'))->toBeFalse();
 });

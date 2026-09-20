@@ -35,6 +35,7 @@ class ServiceDeskSignatureVerifier implements SignatureVerifier
         }
 
         $canonical = ServiceDeskSignature::canonical(
+            $appKey,
             $request->method(),
             $request->getRequestUri(),
             $timestamp,

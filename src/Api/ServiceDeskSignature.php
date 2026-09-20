@@ -18,13 +18,19 @@ final class ServiceDeskSignature
     public const HEADER_SIGNATURE = 'X-Service-Desk-Signature';
 
     /**
-     * The method and path are part of the signed payload so a valid
-     * signature for one endpoint can't be replayed against another; the
-     * body is folded to a fixed-size hash rather than signed inline.
+     * The app key is part of the signed payload so a request signed for one
+     * client can't be re-labeled as another client's by just changing the
+     * X-Service-Desk-App header -- without it, two clients that happen to
+     * share a secret (a misconfiguration, but one the format shouldn't make
+     * exploitable) could impersonate each other. The method and path are
+     * signed too, so a valid signature for one endpoint can't be replayed
+     * against another; the body is folded to a fixed-size hash rather than
+     * signed inline.
      */
-    public static function canonical(string $method, string $requestUri, string $timestamp, string $nonce, string $body): string
+    public static function canonical(string $appKey, string $method, string $requestUri, string $timestamp, string $nonce, string $body): string
     {
         return implode("\n", [
+            $appKey,
             strtoupper($method),
             $requestUri,
             $timestamp,
