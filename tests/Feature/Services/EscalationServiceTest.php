@@ -70,6 +70,24 @@ it('notifies the assigned operator on notify action', function () {
     Notification::assertSentTo($operator, EscalationNotification::class);
 });
 
+it('does not crash when the assigned operator class no longer exists', function () {
+    Notification::fake();
+
+    $operator = User::create(['name' => 'Operator', 'email' => 'operator@example.com']);
+    $this->ticket->update([
+        'assigned_to_type' => $operator->getMorphClass(),
+        'assigned_to_id' => $operator->id,
+    ]);
+    $this->ticket->assigned_to_type = 'App\\Models\\LongGoneTenantOperator';
+    $this->ticket->save();
+
+    $rule = makeEscalationRule(['action' => EscalationAction::Notify]);
+
+    $this->service->handle($rule, $this->ticket->fresh());
+
+    Notification::assertNothingSent();
+});
+
 it('notifies explicit users configured on the rule', function () {
     Notification::fake();
 

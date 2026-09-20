@@ -34,8 +34,9 @@ class NewCommentNotification extends Notification implements ShouldQueue
     {
         $ticket = $this->ticket;
         $comment = $this->comment;
-        $author = $comment->author;
-        $authorName = $author->name ?? __('service-desk::service-desk.notifications.unknown_user');
+        $authorName = $comment->resolvedAuthor()?->getAttribute('name')
+            ?? $comment->author_name
+            ?? __('service-desk::service-desk.notifications.unknown_user');
 
         $subject = str_replace(
             ':reference',
@@ -77,7 +78,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
             'reference_number' => $this->ticket->reference_number,
             'title' => $this->ticket->title,
             'comment_id' => $this->comment->id,
-            'author_name' => $this->comment->author->name ?? null,
+            'author_name' => $this->comment->resolvedAuthor()?->getAttribute('name') ?? $this->comment->author_name,
             'type' => 'new_comment',
         ];
     }
