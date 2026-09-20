@@ -46,3 +46,16 @@ it('builds an array payload with the comment data', function () {
         'type' => 'new_comment',
     ]);
 });
+
+it('falls back to the snapshot author name when the author class no longer exists', function () {
+    $this->comment->author_type = 'App\\Models\\LongGoneTenantUser';
+    $this->comment->save();
+
+    $notification = new NewCommentNotification($this->ticket, $this->comment);
+
+    expect(fn () => $notification->toMail((object) []))->not->toThrow(Throwable::class);
+
+    $array = $notification->toArray((object) []);
+
+    expect($array['author_name'])->toBe('Author');
+});

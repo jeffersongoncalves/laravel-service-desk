@@ -124,7 +124,7 @@ $article = $kbService->createArticle([
 $kbService->publishArticle($article);
 
 // Search
-$results = $kbService->search('password reset', categoryId: 1, limit: 10);
+$results = $kbService->search('password reset', ['category_id' => 1, 'limit' => 10]);
 
 // Link article to a ticket
 $kbService->linkArticleToTicket($article, $ticket);

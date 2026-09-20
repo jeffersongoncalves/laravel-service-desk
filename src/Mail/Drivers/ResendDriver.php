@@ -37,6 +37,16 @@ class ResendDriver implements EmailDriver
     }
 
     /**
+     * Webhook-based driver: there is no outbound connection to test, so this
+     * is a best-effort true. Credential validation happens per-request via
+     * webhook signature verification instead.
+     */
+    public function testConnection(EmailChannel $channel): bool
+    {
+        return true;
+    }
+
+    /**
      * Parse an inbound email from a Resend webhook payload.
      *
      * @param  array<string, mixed>  $payload

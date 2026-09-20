@@ -23,9 +23,11 @@ use JeffersonGoncalves\ServiceDesk\Listeners\SendCommentAddedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketAssignedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketCreatedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketStatusChangedNotification;
+use JeffersonGoncalves\ServiceDesk\Listeners\SuggestKbArticles;
 use JeffersonGoncalves\ServiceDesk\Services\AttachmentService;
 use JeffersonGoncalves\ServiceDesk\Services\AutomationService;
 use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
+use JeffersonGoncalves\ServiceDesk\Services\CannedResponseService;
 use JeffersonGoncalves\ServiceDesk\Services\CommentService;
 use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
@@ -50,6 +52,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 'create_service_desk_ticket_history_table',
                 'create_service_desk_department_operator_table',
                 'create_service_desk_ticket_watchers_table',
+                'add_actor_snapshot_columns_to_service_desk_tables',
                 'create_service_desk_canned_responses_table',
                 'create_service_desk_email_channels_table',
                 'create_service_desk_inbound_emails_table',
@@ -100,6 +103,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(AttachmentService::class);
         $this->app->singleton(InboundEmailService::class);
         $this->app->singleton(AutomationService::class);
+        $this->app->singleton(CannedResponseService::class);
 
         $this->app->bind(SlaCalculator::class, BusinessHoursService::class);
 
@@ -124,6 +128,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
     {
         Event::subscribe(LogTicketHistory::class);
         Event::subscribe(RunAutomationRules::class);
+        Event::subscribe(SuggestKbArticles::class);
 
         Event::listen(TicketCreated::class, SendTicketCreatedNotification::class);
         Event::listen(TicketStatusChanged::class, SendTicketStatusChangedNotification::class);

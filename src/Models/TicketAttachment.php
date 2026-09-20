@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
 
 /**
  * @property int $id
@@ -18,6 +19,8 @@ use Illuminate\Support\Str;
  * @property int|null $comment_id
  * @property string $uploaded_by_type
  * @property int $uploaded_by_id
+ * @property string|null $uploaded_by_name
+ * @property string|null $uploaded_by_email
  * @property string $file_name
  * @property string $file_path
  * @property string $disk
@@ -33,7 +36,7 @@ use Illuminate\Support\Str;
 class TicketAttachment extends Model
 {
     /** @use HasFactory<Factory<static>> */
-    use HasFactory;
+    use HasActorSnapshot, HasFactory;
 
     protected $table = 'service_desk_ticket_attachments';
 
@@ -43,6 +46,8 @@ class TicketAttachment extends Model
         'comment_id',
         'uploaded_by_type',
         'uploaded_by_id',
+        'uploaded_by_name',
+        'uploaded_by_email',
         'file_name',
         'file_path',
         'disk',
@@ -85,6 +90,23 @@ class TicketAttachment extends Model
     public function uploadedBy(): MorphTo
     {
         return $this->morphTo('uploadedBy');
+    }
+
+    /**
+     * The uploader, if its class still exists in this app -- null (never a
+     * fatal error) when it doesn't. See HasActorSnapshot.
+     */
+    public function resolvedUploadedBy(): ?Model
+    {
+        return $this->resolveActor('uploadedBy', 'uploaded_by_type');
+    }
+
+    /** @return array<int, array{0: string, 1: string, 2: string, 3: string}> */
+    protected function actorSnapshots(): array
+    {
+        return [
+            ['uploaded_by_type', 'uploaded_by_id', 'uploaded_by_name', 'uploaded_by_email'],
+        ];
     }
 
     public function getUrl(): ?string
