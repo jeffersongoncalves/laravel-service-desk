@@ -49,6 +49,16 @@ class TicketService
             $oldStatus = $ticket->status;
             $oldPriority = $ticket->priority;
 
+            if (array_key_exists('status', $data)) {
+                $newStatus = $data['status'] instanceof TicketStatus
+                    ? $data['status']
+                    : TicketStatus::from($data['status']);
+
+                if (! $oldStatus->canTransitionTo($newStatus)) {
+                    throw InvalidStatusTransitionException::make($oldStatus, $newStatus);
+                }
+            }
+
             $ticket->fill($data);
             $changes = $ticket->getDirty();
             $ticket->save();
@@ -79,12 +89,6 @@ class TicketService
 
     public function changeStatus(Ticket $ticket, TicketStatus $newStatus, ?Model $performer = null): Ticket
     {
-        $oldStatus = $ticket->status;
-
-        if (! $oldStatus->canTransitionTo($newStatus)) {
-            throw InvalidStatusTransitionException::make($oldStatus, $newStatus);
-        }
-
         return $this->update($ticket, ['status' => $newStatus], $performer);
     }
 
