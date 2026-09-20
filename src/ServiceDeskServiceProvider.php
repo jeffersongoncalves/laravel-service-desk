@@ -23,6 +23,7 @@ use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketCreatedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketStatusChangedNotification;
 use JeffersonGoncalves\ServiceDesk\Services\AttachmentService;
 use JeffersonGoncalves\ServiceDesk\Services\BusinessHoursService;
+use JeffersonGoncalves\ServiceDesk\Services\CannedResponseService;
 use JeffersonGoncalves\ServiceDesk\Services\CommentService;
 use JeffersonGoncalves\ServiceDesk\Services\DepartmentService;
 use JeffersonGoncalves\ServiceDesk\Services\InboundEmailService;
@@ -94,6 +95,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         $this->app->singleton(DepartmentService::class);
         $this->app->singleton(AttachmentService::class);
         $this->app->singleton(InboundEmailService::class);
+        $this->app->singleton(CannedResponseService::class);
 
         $this->app->bind(SlaCalculator::class, BusinessHoursService::class);
 
