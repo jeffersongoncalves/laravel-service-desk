@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketCommentFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 
 /**
  * @property int $id
+ * @property string|null $uuid
  * @property int $ticket_id
  * @property string $author_type
  * @property int $author_id
@@ -48,7 +50,22 @@ class TicketComment extends Model
         return TicketCommentFactory::new();
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (TicketComment $comment) {
+            if (empty($comment->uuid)) {
+                $comment->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     protected $fillable = [
+        'uuid',
         'ticket_id',
         'author_type',
         'author_id',

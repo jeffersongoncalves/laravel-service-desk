@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\DepartmentApiController;
 use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\TicketApiController;
 use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\TicketAttachmentApiController;
+use JeffersonGoncalves\ServiceDesk\Http\Controllers\Api\TicketCommentApiController;
 use JeffersonGoncalves\ServiceDesk\Http\Middleware\VerifyServiceDeskApiSignature;
 
 Route::prefix(config('service-desk.api.prefix', 'service-desk/api'))
@@ -37,4 +39,13 @@ Route::prefix(config('service-desk.api.prefix', 'service-desk/api'))
 
         Route::get('tickets/{uuid}/attachments/{attachmentUuid}', [TicketAttachmentApiController::class, 'show'])
             ->name('service-desk.api.tickets.attachments.show');
+
+        Route::post('tickets/{uuid}/comments', [TicketCommentApiController::class, 'store'])
+            ->name('service-desk.api.tickets.comments.store');
+
+        Route::get('departments', [DepartmentApiController::class, 'index'])
+            ->name('service-desk.api.departments.index');
+
+        Route::get('departments/{department}/categories', [DepartmentApiController::class, 'categories'])
+            ->name('service-desk.api.departments.categories');
     });
