@@ -168,6 +168,22 @@ it('uploads an attachment as base64', function () {
     });
 });
 
+it('adds a reply comment', function () {
+    $ticket = ($this->fakeTicket)();
+
+    Http::fake(['central.test/*' => Http::response(['data' => ['uuid' => 'com-1', 'body' => 'Any update?']], 201)]);
+
+    $result = $this->transport->addComment($ticket, 'Any update?', $this->user);
+
+    expect($result['body'])->toBe('Any update?');
+
+    Http::assertSent(function ($request) {
+        return $request->url() === 'https://central.test/tickets/a1b2c3d4-0000-0000-0000-000000000000/comments'
+            && $request['body'] === 'Any update?'
+            && $request['actor']['email'] === 'john@example.com';
+    });
+});
+
 it('lists attachments', function () {
     $ticket = ($this->fakeTicket)();
 

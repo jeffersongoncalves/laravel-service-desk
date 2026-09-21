@@ -133,6 +133,29 @@ class ApiTicketTransport implements TicketTransport
         return $this->unwrap($response);
     }
 
+    /**
+     * Adds a public reply to a ticket on the central instance. Not part of
+     * TicketTransport, same precedent as uploadAttachment() -- comments have
+     * no equivalent on the database transport's own interface, they're
+     * handled by CommentService there. Always a reply: there's no way to
+     * assert an internal note through this surface at all.
+     *
+     * @return array<string, mixed> the created comment's resource data
+     */
+    public function addComment(Ticket $ticket, string $body, Model $performer): array
+    {
+        try {
+            $response = $this->client->post("tickets/{$ticket->uuid}/comments", [
+                'body' => $body,
+                'actor' => $this->actorPayload($performer),
+            ]);
+        } catch (ServiceDeskApiException $e) {
+            throw $this->remap($e, $ticket);
+        }
+
+        return $this->unwrap($response);
+    }
+
     /** @return array<int, array<string, mixed>> */
     public function listAttachments(Ticket $ticket): array
     {

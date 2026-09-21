@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
+use JeffersonGoncalves\ServiceDesk\Concerns\UsesServiceDeskConnection;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketPriority;
 use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
@@ -75,7 +76,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 class Ticket extends Model
 {
     /** @use HasFactory<TicketFactory> */
-    use HasActorSnapshot, HasFactory, SoftDeletes;
+    use HasActorSnapshot, HasFactory, SoftDeletes, UsesServiceDeskConnection;
 
     protected $table = 'service_desk_tickets';
 
