@@ -24,7 +24,7 @@ class DepartmentApiController
 
     public function categories(int $department): AnonymousResourceCollection
     {
-        $department = Department::findOrFail($department);
+        $department = Department::active()->findOrFail($department);
 
         return CategoryApiResource::collection($department->categories()->active()->ordered()->get());
     }

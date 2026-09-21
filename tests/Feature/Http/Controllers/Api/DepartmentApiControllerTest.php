@@ -43,3 +43,11 @@ it('404s for a department that does not exist', function () {
     ($this->call)('GET', 'satellite-1', 'secret-1', '/service-desk/api/departments/99999/categories')
         ->assertStatus(404);
 });
+
+it('404s for categories of an inactive department', function () {
+    $department = Department::factory()->create(['is_active' => false]);
+    Category::factory()->create(['department_id' => $department->id, 'is_active' => true]);
+
+    ($this->call)('GET', 'satellite-1', 'secret-1', "/service-desk/api/departments/{$department->id}/categories")
+        ->assertStatus(404);
+});

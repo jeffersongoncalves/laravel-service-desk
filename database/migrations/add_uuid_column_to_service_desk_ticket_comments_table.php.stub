@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('uuid')->nullable()->unique()->after('id');
         });
 
-        DB::table('service_desk_ticket_comments')->whereNull('uuid')->orderBy('id')->each(function ($comment) {
+        DB::table('service_desk_ticket_comments')->whereNull('uuid')->eachById(function ($comment) {
             DB::table('service_desk_ticket_comments')->where('id', $comment->id)->update(['uuid' => (string) Str::uuid()]);
         });
     }
