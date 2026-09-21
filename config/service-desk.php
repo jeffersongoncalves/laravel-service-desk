@@ -214,6 +214,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Shared Database Connection
+    |--------------------------------------------------------------------------
+    |
+    | A third strategy alongside service-desk.ticket.transport, for several
+    | apps that share one physical ticket database directly instead of going
+    | through the api transport -- simpler when the apps can already share
+    | infra/network, avoiding HTTP/signing overhead entirely. Null (default)
+    | means every service-desk model uses this app's own default connection,
+    | same as before this existed. Set to a connection name defined in
+    | config/database.php to point every service-desk model at it instead.
+    |
+    */
+
+    'connection' => env('SERVICE_DESK_CONNECTION'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Notification Settings
     |--------------------------------------------------------------------------
     */

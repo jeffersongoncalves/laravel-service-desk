@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
+use JeffersonGoncalves\ServiceDesk\Concerns\UsesServiceDeskConnection;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\DepartmentFactory;
 
 /**
@@ -32,7 +33,7 @@ use JeffersonGoncalves\ServiceDesk\Database\Factories\DepartmentFactory;
 class Department extends Model
 {
     /** @use HasFactory<DepartmentFactory> */
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes, UsesServiceDeskConnection;
 
     protected $table = 'service_desk_departments';
 

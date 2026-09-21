@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
+use JeffersonGoncalves\ServiceDesk\Concerns\UsesServiceDeskConnection;
 
 /**
  * @property int $id
@@ -36,7 +37,7 @@ use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
 class TicketAttachment extends Model
 {
     /** @use HasFactory<Factory<static>> */
-    use HasActorSnapshot, HasFactory;
+    use HasActorSnapshot, HasFactory, UsesServiceDeskConnection;
 
     protected $table = 'service_desk_ticket_attachments';
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
+use JeffersonGoncalves\ServiceDesk\Concerns\UsesServiceDeskConnection;
 use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
 
 /**
@@ -28,7 +29,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\HistoryAction;
  */
 class TicketHistory extends Model
 {
-    use HasActorSnapshot;
+    use HasActorSnapshot, UsesServiceDeskConnection;
 
     public $timestamps = false;
 

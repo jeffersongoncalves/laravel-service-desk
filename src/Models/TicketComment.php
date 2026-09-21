@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
+use JeffersonGoncalves\ServiceDesk\Concerns\UsesServiceDeskConnection;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\TicketCommentFactory;
 use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 
@@ -40,7 +41,7 @@ use JeffersonGoncalves\ServiceDesk\Enums\CommentType;
 class TicketComment extends Model
 {
     /** @use HasFactory<TicketCommentFactory> */
-    use HasActorSnapshot, HasFactory, SoftDeletes;
+    use HasActorSnapshot, HasFactory, SoftDeletes, UsesServiceDeskConnection;
 
     protected $table = 'service_desk_ticket_comments';
 

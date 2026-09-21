@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasSlug;
+use JeffersonGoncalves\ServiceDesk\Concerns\UsesServiceDeskConnection;
 use JeffersonGoncalves\ServiceDesk\Database\Factories\CategoryFactory;
 
 /**
@@ -34,7 +35,7 @@ use JeffersonGoncalves\ServiceDesk\Database\Factories\CategoryFactory;
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes, UsesServiceDeskConnection;
 
     protected $table = 'service_desk_categories';
 
