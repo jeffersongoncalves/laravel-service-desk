@@ -3,62 +3,15 @@
 namespace JeffersonGoncalves\ServiceDesk\Tests;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use JeffersonGoncalves\PestPluginDatabaseMigrations\LoadsPackageMigrations;
 use JeffersonGoncalves\ServiceDesk\ServiceDeskServiceProvider;
 use JeffersonGoncalves\ServiceDesk\Tests\Fixtures\User;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
+    use LoadsPackageMigrations;
     use RefreshDatabase;
-
-    /**
-     * Same order as ServiceDeskServiceProvider::hasMigrations(). SQLite doesn't
-     * enforce foreign keys at CREATE TABLE time, but MySQL/Postgres do, so
-     * migrations must run in dependency order, not alphabetically by stub name.
-     */
-    private const MIGRATION_ORDER = [
-        // Core
-        'create_service_desk_departments_table',
-        'create_service_desk_categories_table',
-        'create_service_desk_tickets_table',
-        'create_service_desk_ticket_comments_table',
-        'create_service_desk_ticket_attachments_table',
-        'create_service_desk_ticket_history_table',
-        'create_service_desk_department_operator_table',
-        'create_service_desk_ticket_watchers_table',
-        'create_service_desk_ticket_feedback_table',
-        'add_actor_snapshot_columns_to_service_desk_tables',
-        'add_app_key_column_to_service_desk_tickets_table',
-        'add_uuid_column_to_service_desk_ticket_comments_table',
-        'create_service_desk_canned_responses_table',
-        'create_service_desk_email_channels_table',
-        'create_service_desk_inbound_emails_table',
-        // Tags
-        'create_service_desk_tags_table',
-        'create_service_desk_taggables_table',
-        // SLA
-        'create_service_desk_business_hours_schedules_table',
-        'create_service_desk_business_hours_time_slots_table',
-        'create_service_desk_holidays_table',
-        'create_service_desk_sla_policies_table',
-        'create_service_desk_sla_targets_table',
-        'create_service_desk_ticket_sla_table',
-        'create_service_desk_escalation_rules_table',
-        'create_service_desk_automation_rules_table',
-        // Knowledge Base
-        'create_service_desk_kb_categories_table',
-        'create_service_desk_kb_articles_table',
-        'create_service_desk_kb_article_versions_table',
-        'create_service_desk_kb_article_feedback_table',
-        'create_service_desk_kb_article_relations_table',
-        'create_service_desk_kb_article_ticket_table',
-        // Service Catalog
-        'create_service_desk_service_categories_table',
-        'create_service_desk_services_table',
-        'create_service_desk_service_form_fields_table',
-        'create_service_desk_service_requests_table',
-        'create_service_desk_service_request_approvals_table',
-    ];
 
     protected function getPackageProviders($app): array
     {
@@ -110,25 +63,6 @@ abstract class TestCase extends Orchestra
     protected function defineDatabaseMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-
-        $stubsPath = __DIR__.'/../database/migrations';
-        $tempPath = sys_get_temp_dir().'/laravel-service-desk-migrations';
-
-        if (! is_dir($tempPath)) {
-            mkdir($tempPath, 0755, true);
-        }
-
-        // Stale files from a previous MIGRATION_ORDER (different index prefixes
-        // for the same migration name) would otherwise linger and get loaded
-        // alongside the current set, creating the same table twice.
-        foreach (glob($tempPath.'/*.php') ?: [] as $staleFile) {
-            unlink($staleFile);
-        }
-
-        foreach (self::MIGRATION_ORDER as $index => $name) {
-            copy($stubsPath.'/'.$name.'.php.stub', $tempPath.'/'.sprintf('%03d_%s.php', $index, $name));
-        }
-
-        $this->loadMigrationsFrom($tempPath);
+        $this->loadPackageMigrations(ServiceDeskServiceProvider::class);
     }
 }
