@@ -5,20 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.0.4] - 2026-02-07
+## [v1.2.1](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.4...v1.2.1) - 2026-10-28
+
+Tests now load the package migrations with jeffersongoncalves/pest-plugin-database-migrations, in the order declared by the service provider, instead of copying the .php.stub files by hand. No runtime changes.
+
+## [v1.0.4](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.3...v1.0.4) - 2026-02-07
 
 ### Fixed
 
 - Fix `morphTo()` relationship signature in `Ticket::assignedTo()` and `TicketAttachment::uploadedBy()` to use camelCase method name instead of snake_case
 
-## [v1.0.3] - 2026-02-07
+## [v1.0.3](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.2...v1.0.3) - 2026-02-07
 
 ### Added
 
 - GitHub Sponsors funding configuration (`.github/FUNDING.yml`)
 - Repository topics/tags for better discoverability on GitHub
 
-## [v1.0.2] - 2026-02-06
+## [v1.0.2](https://github.com/jeffersongoncalves/laravel-service-desk/compare/1.0.1...v1.0.2) - 2026-02-06
 
 ### Added
 
@@ -30,13 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Translation key mismatches in `history_action` (`commented` renamed to `comment_added`)
 - Added missing translation keys `category_changed` and `title_changed` in both English and Portuguese
 
-## [1.0.1] - 2026-02-06
+## [1.0.1](https://github.com/jeffersongoncalves/laravel-service-desk/compare/1.0.0...1.0.1) - 2026-02-06
 
 ### Fixed
 
 - Correct translation keys in TicketPriority and TicketStatus enums
 
-## [1.0.0] - 2026-02-05
+## [1.0.0](https://github.com/jeffersongoncalves/laravel-service-desk/releases/tag/1.0.0) - 2026-02-05
 
 ### Added
 
@@ -58,9 +62,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Full Test Suite** - 244 tests with Pest framework
 - **Static Analysis** - PHPStan/Larastan level configuration
 - **Code Style** - Laravel Pint formatting
-
-[v1.0.4]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.3...v1.0.4
-[v1.0.3]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.2...v1.0.3
-[v1.0.2]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/1.0.1...v1.0.2
-[1.0.1]: https://github.com/jeffersongoncalves/laravel-service-desk/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/jeffersongoncalves/laravel-service-desk/releases/tag/1.0.0
