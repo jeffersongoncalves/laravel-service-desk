@@ -150,9 +150,36 @@ The configuration file `config/service-desk.php` allows you to customize:
         'ticket_status_changed' => true,
         'comment_added' => true,
         'sla_breached' => true,
+        'operator_new_ticket' => true,
+        'operator_requester_reply' => true,
         // ...
     ],
 ],
+```
+
+| Event | Recipients |
+|-------|------------|
+| Ticket created | Requester; and the assigned operator, or every operator of the department |
+| Requester replies | Assigned operator, or every operator of the department (watchers get the comment notification instead) |
+| Operator replies | Requester and watchers |
+| Ticket assigned | The assigned operator |
+| Status changed | Requester (a close sends the closed notification instead) |
+| Ticket closed | Requester |
+
+Each operator can turn the operator emails off per department through the `email_notifications` column on `service_desk_department_operator`:
+
+```php
+$operator->serviceDeskDepartments()->updateExistingPivot($departmentId, ['email_notifications' => false]);
+```
+
+Notification buttons link to the app home by default. Point them at the ticket from your `AppServiceProvider` (the Filament plugin registers one for its panels); `$forOperator` is false for the requester:
+
+```php
+use JeffersonGoncalves\ServiceDesk\Models\Ticket;
+
+Ticket::resolveNotificationUrlUsing(fn (Ticket $ticket, object $notifiable, bool $forOperator): string => $forOperator
+    ? route('agent.tickets.show', $ticket)
+    : route('tickets.show', $ticket));
 ```
 
 ## Setup

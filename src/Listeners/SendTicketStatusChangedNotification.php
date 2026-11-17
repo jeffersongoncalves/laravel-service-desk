@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JeffersonGoncalves\ServiceDesk\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use JeffersonGoncalves\ServiceDesk\Enums\TicketStatus;
 use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
 use JeffersonGoncalves\ServiceDesk\Notifications\TicketStatusChangedNotification;
 
@@ -13,6 +14,12 @@ class SendTicketStatusChangedNotification implements ShouldQueue
     public function handle(TicketStatusChanged $event): void
     {
         if (! config('service-desk.notifications.notify_on.ticket_status_changed', true)) {
+            return;
+        }
+
+        // The closed notification says it better; sending both would mean two
+        // emails for one action.
+        if ($event->newStatus === TicketStatus::Closed && config('service-desk.notifications.notify_on.ticket_closed', true)) {
             return;
         }
 

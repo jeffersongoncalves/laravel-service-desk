@@ -50,7 +50,8 @@ class EscalationNotification extends Notification implements ShouldQueue
             ]))
             ->line(__('service-desk::service-desk.notifications.escalation.priority', [
                 'priority' => $ticket->priority->label(),
-            ]));
+            ]))
+            ->action(__('service-desk::service-desk.notifications.view_ticket'), $ticket->notificationUrl($notifiable));
     }
 
     /**

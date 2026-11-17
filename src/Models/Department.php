@@ -82,6 +82,60 @@ class Department extends Model
     }
 
     /**
+     * The department's operators who have not turned off email notifications
+     * for it, loaded from their own models.
+     *
+     * Read from the pivot table on the service desk connection, then each
+     * morph type is loaded separately on its own model's connection — a join
+     * would break when the two live in different databases. Operator types
+     * whose class no longer exists in this app are skipped.
+     *
+     * @param  list<string>  $exceptKeys  "type:id" pairs to leave out.
+     * @return list<Model>
+     */
+    public function operatorsToNotify(array $exceptKeys = []): array
+    {
+        $rows = $this->getConnection()
+            ->table('service_desk_department_operator')
+            ->where('department_id', $this->getKey())
+            ->where('email_notifications', true)
+            ->get(['operator_type', 'operator_id']);
+
+        $operators = [];
+
+        foreach ($rows->groupBy('operator_type') as $type => $group) {
+            /** @var class-string<Model> $class */
+            $class = Model::getActualClassNameForMorph((string) $type);
+
+            if (! class_exists($class)) {
+                continue;
+            }
+
+            foreach ($class::query()->whereKey($group->pluck('operator_id')->all())->get() as $operator) {
+                if (! in_array($operator->getMorphClass().':'.$operator->getKey(), $exceptKeys, true)) {
+                    $operators[] = $operator;
+                }
+            }
+        }
+
+        return $operators;
+    }
+
+    /**
+     * Whether the operator turned off email notifications for this department.
+     */
+    public function operatorOptedOutOfEmail(Model $operator): bool
+    {
+        return $this->getConnection()
+            ->table('service_desk_department_operator')
+            ->where('department_id', $this->getKey())
+            ->where('operator_type', $operator->getMorphClass())
+            ->where('operator_id', $operator->getKey())
+            ->where('email_notifications', false)
+            ->exists();
+    }
+
+    /**
      * @param  Builder<static>  $query
      * @return Builder<static>
      */

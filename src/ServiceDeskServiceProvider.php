@@ -17,14 +17,17 @@ use JeffersonGoncalves\ServiceDesk\Contracts\TicketTransport;
 use JeffersonGoncalves\ServiceDesk\Events\CommentAdded;
 use JeffersonGoncalves\ServiceDesk\Events\InboundEmailReceived;
 use JeffersonGoncalves\ServiceDesk\Events\TicketAssigned;
+use JeffersonGoncalves\ServiceDesk\Events\TicketClosed;
 use JeffersonGoncalves\ServiceDesk\Events\TicketCreated;
 use JeffersonGoncalves\ServiceDesk\Events\TicketStatusChanged;
 use JeffersonGoncalves\ServiceDesk\Exceptions\ServiceDeskApiException;
 use JeffersonGoncalves\ServiceDesk\Listeners\LogTicketHistory;
+use JeffersonGoncalves\ServiceDesk\Listeners\NotifyOperatorsOfTicketActivity;
 use JeffersonGoncalves\ServiceDesk\Listeners\ProcessInboundEmail;
 use JeffersonGoncalves\ServiceDesk\Listeners\RunAutomationRules;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendCommentAddedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketAssignedNotification;
+use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketClosedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketCreatedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SendTicketStatusChangedNotification;
 use JeffersonGoncalves\ServiceDesk\Listeners\SuggestKbArticles;
@@ -63,6 +66,7 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
                 'add_actor_snapshot_columns_to_service_desk_tables',
                 'add_app_key_column_to_service_desk_tickets_table',
                 'add_uuid_column_to_service_desk_ticket_comments_table',
+                'add_email_notifications_to_service_desk_department_operator_table',
                 'create_service_desk_canned_responses_table',
                 'create_service_desk_email_channels_table',
                 'create_service_desk_inbound_emails_table',
@@ -177,6 +181,9 @@ class ServiceDeskServiceProvider extends PackageServiceProvider
         Event::listen(TicketStatusChanged::class, SendTicketStatusChangedNotification::class);
         Event::listen(CommentAdded::class, SendCommentAddedNotification::class);
         Event::listen(TicketAssigned::class, SendTicketAssignedNotification::class);
+        Event::listen(TicketClosed::class, SendTicketClosedNotification::class);
+        Event::listen(TicketCreated::class, NotifyOperatorsOfTicketActivity::class);
+        Event::listen(CommentAdded::class, NotifyOperatorsOfTicketActivity::class);
 
         Event::listen(InboundEmailReceived::class, ProcessInboundEmail::class);
     }

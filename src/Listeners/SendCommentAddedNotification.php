@@ -29,7 +29,7 @@ class SendCommentAddedNotification implements ShouldQueue
         $notification = new NewCommentNotification($ticket, $comment);
 
         // Notify the ticket owner if they are not the comment author
-        $ticketOwner = $ticket->user;
+        $ticketOwner = $ticket->resolvedUser();
 
         if ($ticketOwner && ! $this->isSameUser($ticketOwner, $comment)) {
             /** @phpstan-ignore method.notFound */

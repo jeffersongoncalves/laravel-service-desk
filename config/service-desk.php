@@ -249,6 +249,12 @@ return [
             'escalation' => true,
             'approval_requested' => true,
             'approval_decision' => true,
+
+            // Operators: the assigned one, or else every operator of the
+            // department who has not turned email off for it (the
+            // email_notifications column on service_desk_department_operator).
+            'operator_new_ticket' => true,
+            'operator_requester_reply' => true,
         ],
 
         'queue' => env('SERVICE_DESK_NOTIFICATION_QUEUE', 'default'),

@@ -258,6 +258,21 @@ return [
             'subject' => 'Approval Decision on Service Request #:reference',
             'body' => 'The service request #:reference (:title) has been :decision by :approver.',
         ],
+        'operator_new_ticket' => [
+            'subject' => 'New Ticket: :title',
+            'greeting' => 'Hello!',
+            'body' => ':requester opened a new support ticket.',
+            'title' => 'Title: :title',
+            'priority' => 'Priority: :priority',
+        ],
+        'operator_requester_reply' => [
+            'subject' => 'New Reply: :title',
+            'greeting' => 'Hello!',
+            'body' => ':requester replied to a support ticket.',
+            'title' => 'Title: :title',
+            'priority' => 'Priority: :priority',
+        ],
+        'view_ticket' => 'View Ticket',
     ],
 
     /*

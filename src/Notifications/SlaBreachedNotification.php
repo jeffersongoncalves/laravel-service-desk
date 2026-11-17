@@ -48,7 +48,8 @@ class SlaBreachedNotification extends Notification implements ShouldQueue
             ]))
             ->line(__('service-desk::service-desk.notifications.sla_breached.priority', [
                 'priority' => $ticket->priority->label(),
-            ]));
+            ]))
+            ->action(__('service-desk::service-desk.notifications.view_ticket'), $ticket->notificationUrl($notifiable));
     }
 
     /**

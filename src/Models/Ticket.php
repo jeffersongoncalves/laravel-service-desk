@@ -2,6 +2,7 @@
 
 namespace JeffersonGoncalves\ServiceDesk\Models;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use JeffersonGoncalves\ServiceDesk\Concerns\HasActorSnapshot;
@@ -79,6 +81,9 @@ class Ticket extends Model
     use HasActorSnapshot, HasFactory, SoftDeletes, UsesServiceDeskConnection;
 
     protected $table = 'service_desk_tickets';
+
+    /** @var (Closure(Ticket, object, bool): string)|null */
+    protected static ?Closure $notificationUrlResolver = null;
 
     /** @return Factory<self> */
     protected static function newFactory(): Factory
@@ -371,5 +376,40 @@ class Ticket extends Model
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    /**
+     * Lets the app (or the Filament plugin) build the link notifications point
+     * to. The flag tells operators from the requester, so each can land on
+     * their own panel. A static callback rather than a config closure, so
+     * config:cache keeps working.
+     */
+    public static function resolveNotificationUrlUsing(?Closure $resolver): void
+    {
+        static::$notificationUrlResolver = $resolver;
+    }
+
+    public function notificationUrl(object $notifiable): string
+    {
+        if (static::$notificationUrlResolver === null) {
+            return url('/');
+        }
+
+        return (static::$notificationUrlResolver)($this, $notifiable, ! $this->isRequester($notifiable));
+    }
+
+    /**
+     * Whether the notifiable is the ticket's requester. An on-demand
+     * (anonymous) notifiable is an email-only requester.
+     */
+    public function isRequester(object $notifiable): bool
+    {
+        if ($notifiable instanceof AnonymousNotifiable) {
+            return true;
+        }
+
+        return $notifiable instanceof Model
+            && $notifiable->getMorphClass() === $this->user_type
+            && (string) $notifiable->getKey() === (string) $this->user_id;
     }
 }
