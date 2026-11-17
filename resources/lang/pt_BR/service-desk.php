@@ -22,7 +22,7 @@ return [
     */
     'priority' => [
         'low' => 'Baixa',
-        'medium' => 'Media',
+        'medium' => 'Média',
         'high' => 'Alta',
         'urgent' => 'Urgente',
     ],
@@ -36,14 +36,14 @@ return [
         'web' => 'Web',
         'email' => 'E-mail',
         'api' => 'API',
-        'service_request' => 'Requisicao de Servico',
+        'service_request' => 'Requisição de Serviço',
         'phone' => 'Telefone',
         'chat' => 'Chat',
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Tipos de Comentario
+    | Tipos de Comentário
     |--------------------------------------------------------------------------
     */
     'comment_type' => [
@@ -54,29 +54,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Acoes do Historico
+    | Ações do Histórico
     |--------------------------------------------------------------------------
     */
     'history_action' => [
         'created' => 'Ticket criado',
         'status_changed' => 'Status alterado para :status',
         'priority_changed' => 'Prioridade alterada para :priority',
-        'assigned' => 'Atribuido a :agent',
+        'assigned' => 'Atribuído a :agent',
         'unassigned' => 'Agente removido',
         'department_changed' => 'Departamento alterado para :department',
         'category_changed' => 'Categoria alterada para :category',
-        'comment_added' => 'Comentario adicionado',
+        'comment_added' => 'Comentário adicionado',
         'attachment_added' => 'Anexo adicionado',
         'attachment_removed' => 'Anexo removido',
         'closed' => 'Ticket fechado',
         'reopened' => 'Ticket reaberto',
-        'title_changed' => 'Titulo alterado',
+        'title_changed' => 'Título alterado',
         'merged' => 'Ticket mesclado com :reference',
         'tags_changed' => 'Tags atualizadas',
-        'sla_applied' => 'Politica de SLA aplicada',
+        'sla_applied' => 'Política de SLA aplicada',
         'sla_breached' => 'SLA violado',
         'escalated' => 'Ticket escalonado',
-        'service_request_linked' => 'Requisicao de servico vinculada',
+        'service_request_linked' => 'Requisição de serviço vinculada',
         'article_linked' => 'Artigo da base de conhecimento vinculado',
     ],
 
@@ -88,12 +88,12 @@ return [
     'sla' => [
         'breach_type' => [
             'first_response' => 'Primeira Resposta',
-            'next_response' => 'Proxima Resposta',
-            'resolution' => 'Resolucao',
+            'next_response' => 'Próxima Resposta',
+            'resolution' => 'Resolução',
         ],
-        'applied' => 'Politica de SLA ":policy" aplicada ao ticket :reference',
+        'applied' => 'Política de SLA ":policy" aplicada ao ticket :reference',
         'breached' => 'SLA de :type violado no ticket :reference',
-        'near_breach' => 'SLA de :type proximo de ser violado no ticket :reference',
+        'near_breach' => 'SLA de :type próximo de ser violado no ticket :reference',
         'metric_met' => 'SLA de :type cumprido no ticket :reference',
     ],
 
@@ -143,19 +143,19 @@ return [
             'archived' => 'Arquivado',
         ],
         'visibility' => [
-            'public' => 'Publico',
+            'public' => 'Público',
             'internal' => 'Interno',
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Catalogo de Servicos
+    | Catálogo de Serviços
     |--------------------------------------------------------------------------
     */
     'service_catalog' => [
         'visibility' => [
-            'public' => 'Publico',
+            'public' => 'Público',
             'internal' => 'Interno',
             'draft' => 'Rascunho',
         ],
@@ -164,7 +164,7 @@ return [
             'approved' => 'Aprovado',
             'rejected' => 'Rejeitado',
             'in_progress' => 'Em Andamento',
-            'fulfilled' => 'Concluido',
+            'fulfilled' => 'Concluído',
             'cancelled' => 'Cancelado',
         ],
         'approval_status' => [
@@ -176,19 +176,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tipos de Campo de Formulario
+    | Tipos de Campo de Formulário
     |--------------------------------------------------------------------------
     */
     'form_field_type' => [
         'text' => 'Texto',
-        'textarea' => 'Area de Texto',
-        'select' => 'Selecao',
-        'checkbox' => 'Caixa de Selecao',
-        'radio' => 'Opcao Unica',
+        'textarea' => 'Área de Texto',
+        'select' => 'Seleção',
+        'checkbox' => 'Caixa de Seleção',
+        'radio' => 'Opção Única',
         'date' => 'Data',
         'datetime' => 'Data e Hora',
         'file' => 'Arquivo',
-        'number' => 'Numero',
+        'number' => 'Número',
         'email' => 'E-mail',
         'url' => 'URL',
         'tel' => 'Telefone',
@@ -203,60 +203,81 @@ return [
     'day_of_week' => [
         'sunday' => 'Domingo',
         'monday' => 'Segunda-feira',
-        'tuesday' => 'Terca-feira',
+        'tuesday' => 'Terça-feira',
         'wednesday' => 'Quarta-feira',
         'thursday' => 'Quinta-feira',
         'friday' => 'Sexta-feira',
-        'saturday' => 'Sabado',
+        'saturday' => 'Sábado',
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Notificacoes
+    | Notificações
     |--------------------------------------------------------------------------
     */
     'notifications' => [
         'ticket_created' => [
-            'subject' => 'Ticket #:reference Criado: :title',
-            'greeting' => 'Ola :name,',
-            'body' => 'Um novo ticket foi criado com a referencia #:reference. Nossa equipe ira analisa-lo e retornara em breve.',
-            'action' => 'Ver Ticket',
+            'subject' => 'Chamado aberto',
+            'greeting' => 'Olá!',
+            'body' => 'Seu chamado #:reference (:title) foi aberto. Nossa equipe vai analisá-lo e retornar em breve.',
+            'department' => 'Departamento: :department',
+            'priority' => 'Prioridade: :priority',
         ],
-        'ticket_status_changed' => [
-            'subject' => 'Ticket #:reference - Status Atualizado',
-            'body' => 'O status do ticket #:reference (:title) foi alterado para :status.',
+        'status_changed' => [
+            'subject' => 'Status atualizado',
+            'greeting' => 'Olá!',
+            'body' => 'O status do chamado #:reference (:title) foi alterado.',
+            'transition' => 'De :old para :new.',
         ],
         'ticket_assigned' => [
-            'subject' => 'Ticket #:reference Atribuido a Voce',
-            'body' => 'O ticket #:reference (:title) foi atribuido a voce. Por favor, analise-o assim que possivel.',
+            'subject' => 'Chamado atribuído a você',
+            'greeting' => 'Olá!',
+            'body' => 'O chamado #:reference (:title) foi atribuído a você.',
+            'priority' => 'Prioridade: :priority',
+            'department' => 'Departamento: :department',
         ],
         'ticket_closed' => [
-            'subject' => 'Ticket #:reference Fechado',
-            'body' => 'O ticket #:reference (:title) foi fechado. Se voce acredita que isso foi feito por engano ou precisa de mais ajuda, voce pode reabri-lo.',
+            'subject' => 'Chamado fechado',
+            'greeting' => 'Olá!',
+            'body' => 'O chamado #:reference (:title) foi fechado.',
+            'info' => 'Se isso foi um engano ou você ainda precisa de ajuda, pode reabri-lo.',
         ],
-        'comment_added' => [
-            'subject' => 'Novo Comentario no Ticket #:reference',
-            'body' => 'Um novo comentario foi adicionado ao ticket #:reference (:title) por :author.',
+        'new_comment' => [
+            'subject' => 'Novo comentário',
+            'greeting' => 'Olá!',
+            'body' => ':author comentou no chamado #:reference (:title).',
+            'comment_type' => 'Tipo: :type',
         ],
+        'unknown_user' => 'Alguém',
         'sla_breached' => [
-            'subject' => 'SLA Violado no Ticket #:reference',
-            'body' => 'O SLA de :type foi violado no ticket #:reference (:title). Atencao imediata e necessaria.',
+            'subject' => 'SLA violado',
+            'greeting' => 'Olá!',
+            'body' => 'O SLA de :breach_type foi violado no chamado #:reference (:title). É necessária atenção imediata.',
+            'priority' => 'Prioridade: :priority',
         ],
         'sla_near_breach' => [
-            'subject' => 'SLA Proximo de Violacao no Ticket #:reference',
-            'body' => 'O SLA de :type no ticket #:reference (:title) esta se aproximando do prazo limite. Por favor, tome uma acao para evitar a violacao.',
+            'subject' => 'SLA prestes a vencer',
+            'greeting' => 'Olá!',
+            'body' => 'O SLA de :breach_type do chamado #:reference (:title) vence em :minutes minutos.',
+            'priority' => 'Prioridade: :priority',
         ],
         'escalation' => [
-            'subject' => 'Ticket #:reference Escalonado',
-            'body' => 'O ticket #:reference (:title) foi escalonado devido a regra ":rule". Por favor, analise e tome as medidas adequadas.',
+            'subject' => 'Chamado escalonado',
+            'greeting' => 'Olá!',
+            'body' => 'O chamado #:reference (:title) foi escalonado (:breach_type, ação: :action).',
+            'priority' => 'Prioridade: :priority',
         ],
         'approval_requested' => [
-            'subject' => 'Aprovacao Solicitada para Requisicao de Servico #:reference',
-            'body' => 'Sua aprovacao e necessaria para a requisicao de servico #:reference (:title). Por favor, analise e forneca sua decisao.',
+            'subject' => 'Aprovação solicitada: :service',
+            'greeting' => 'Olá!',
+            'body' => ':requester solicitou :service, que precisa da sua aprovação.',
+            'action_required' => 'Analise a solicitação e registre sua decisão.',
         ],
         'approval_decision' => [
-            'subject' => 'Decisao de Aprovacao na Requisicao de Servico #:reference',
-            'body' => 'A requisicao de servico #:reference (:title) foi :decision por :approver.',
+            'subject' => 'Decisão de aprovação: :service (:status)',
+            'greeting' => 'Olá!',
+            'body' => 'Sua solicitação de :service foi :status.',
+            'comment' => 'Comentário: :comment',
         ],
         'operator_new_ticket' => [
             'subject' => 'Novo Chamado: :title',
@@ -285,8 +306,8 @@ return [
     'department' => 'Departamento',
     'category' => 'Categoria',
     'attachment' => 'Anexo',
-    'comment' => 'Comentario',
+    'comment' => 'Comentário',
     'tag' => 'Tag',
     'article' => 'Artigo',
-    'service' => 'Servico',
+    'service' => 'Serviço',
 ];

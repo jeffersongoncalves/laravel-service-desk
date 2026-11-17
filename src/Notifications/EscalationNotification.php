@@ -45,8 +45,8 @@ class EscalationNotification extends Notification implements ShouldQueue
             ->line(__('service-desk::service-desk.notifications.escalation.body', [
                 'reference' => $ticket->reference_number,
                 'title' => $ticket->title,
-                'breach_type' => $this->escalationRule->breach_type->value,
-                'action' => $this->escalationRule->action->value,
+                'breach_type' => $this->escalationRule->breach_type->label(),
+                'action' => $this->escalationRule->action->label(),
             ]))
             ->line(__('service-desk::service-desk.notifications.escalation.priority', [
                 'priority' => $ticket->priority->label(),

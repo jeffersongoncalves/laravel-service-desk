@@ -33,7 +33,7 @@ class ApprovalDecisionNotification extends Notification implements ShouldQueue
         $approval = $this->approval;
         $serviceRequest = $approval->serviceRequest;
         $service = $serviceRequest->service;
-        $status = $approval->status->value;
+        $status = $approval->status->label();
 
         return (new MailMessage)
             ->subject(__('service-desk::service-desk.notifications.approval_decision.subject', [
