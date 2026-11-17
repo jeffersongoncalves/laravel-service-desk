@@ -258,6 +258,21 @@ return [
             'subject' => 'Decisao de Aprovacao na Requisicao de Servico #:reference',
             'body' => 'A requisicao de servico #:reference (:title) foi :decision por :approver.',
         ],
+        'operator_new_ticket' => [
+            'subject' => 'Novo Chamado: :title',
+            'greeting' => 'Olá!',
+            'body' => ':requester abriu um novo chamado de suporte.',
+            'title' => 'Título: :title',
+            'priority' => 'Prioridade: :priority',
+        ],
+        'operator_requester_reply' => [
+            'subject' => 'Nova Resposta: :title',
+            'greeting' => 'Olá!',
+            'body' => ':requester respondeu a um chamado de suporte.',
+            'title' => 'Título: :title',
+            'priority' => 'Prioridade: :priority',
+        ],
+        'view_ticket' => 'Ver Chamado',
     ],
 
     /*

@@ -55,6 +55,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
             ->line(__('service-desk::service-desk.notifications.new_comment.comment_type', [
                 'type' => $comment->type->value,
             ]))
+            ->action(__('service-desk::service-desk.notifications.view_ticket'), $ticket->notificationUrl($notifiable))
             ->withSymfonyMessage(function ($message) use ($ticket, $comment) {
                 $domain = parse_url(config('app.url', 'http://localhost'), PHP_URL_HOST) ?? 'localhost';
                 $messageId = "{$ticket->uuid}-comment-{$comment->id}@{$domain}";
