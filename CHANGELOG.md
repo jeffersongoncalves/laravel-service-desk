@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.3.1](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.3.0...v1.3.1) - 2026-11-17
+
+- Notification emails no longer show raw translation keys: en and pt_BR now define every line the notifications use (greetings, new comment, status change, department, priority and closing lines).
+- Subjects no longer repeat the reference the subject prefix already carries.
+- pt_BR translations get their accents back.
+- Escalation, approval decision and new comment emails show translated labels for the breach type, action, status and comment type.
+- A test fails when a notification uses a key a shipped locale lacks.
+
 ## [v1.3.0](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.2.1...v1.3.0) - 2026-11-17
 
 - Operators get an email when the requester opens a ticket or replies to one: the assigned operator, or every operator of the department when nobody is assigned.
