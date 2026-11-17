@@ -53,7 +53,7 @@ class NewCommentNotification extends Notification implements ShouldQueue
                 'author' => $authorName,
             ]))
             ->line(__('service-desk::service-desk.notifications.new_comment.comment_type', [
-                'type' => $comment->type->value,
+                'type' => $comment->type->label(),
             ]))
             ->action(__('service-desk::service-desk.notifications.view_ticket'), $ticket->notificationUrl($notifiable))
             ->withSymfonyMessage(function ($message) use ($ticket, $comment) {
