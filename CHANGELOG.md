@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.3.0](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.2.1...v1.3.0) - 2026-11-17
+
+- Operators get an email when the requester opens a ticket or replies to one: the assigned operator, or every operator of the department when nobody is assigned.
+- Per-department opt-out through the new `email_notifications` column on `service_desk_department_operator` (publish and run the new migration).
+- Closing a ticket now sends the closed notification, once, instead of the status change email.
+- Every ticket notification has a View Ticket button; set its link with `Ticket::resolveNotificationUrlUsing(...)` (the Filament plugin does it for its panels).
+- The comment listener resolves the requester safely when its stored type no longer exists.
+
 ## [v1.2.1](https://github.com/jeffersongoncalves/laravel-service-desk/compare/v1.0.4...v1.2.1) - 2026-10-28
 
 Tests now load the package migrations with jeffersongoncalves/pest-plugin-database-migrations, in the order declared by the service provider, instead of copying the .php.stub files by hand. No runtime changes.
