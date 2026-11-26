@@ -88,6 +88,51 @@ it('adds a reply to the existing ticket when the thread is matched by in_reply_t
     expect($ticket->comments)->toHaveCount(1);
 });
 
+it('stores an email body as escaped text, never as markup', function (array $body, string $expected) {
+    Event::fake([InboundEmailProcessed::class]);
+
+    Department::factory()->create();
+    $user = User::create(['name' => 'Customer', 'email' => 'sender@example.com']);
+    $ticket = Ticket::factory()->create([
+        'user_type' => $user->getMorphClass(),
+        'user_id' => $user->id,
+        'email_message_id' => '<original@example.com>',
+    ]);
+
+    $email = makeInboundEmail([
+        'in_reply_to' => '<original@example.com>',
+        'text_body' => null,
+        ...$body,
+    ]);
+
+    $this->listener->handle(new InboundEmailReceived($email));
+
+    expect($ticket->comments()->first()->body)->toBe($expected);
+})->with([
+    'plain text' => [
+        ['text_body' => "a < b\n<script>alert(1)</script><img src=x onerror=alert(2)>"],
+        'a &lt; b<br>'."\n".'&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=alert(2)&gt;',
+    ],
+    'html only' => [
+        ['html_body' => '<p>Hi &lt;script&gt;alert(1)&lt;/script&gt;</p><script>alert(2)</script>'],
+        'Hi &lt;script&gt;alert(1)&lt;/script&gt;alert(2)',
+    ],
+]);
+
+it('escapes the email body of a new ticket', function () {
+    Event::fake([InboundEmailProcessed::class]);
+
+    Department::factory()->create(['is_active' => true]);
+    User::create(['name' => 'Customer', 'email' => 'sender@example.com']);
+
+    $email = makeInboundEmail(['text_body' => '<img src=x onerror=alert(1)>']);
+
+    $this->listener->handle(new InboundEmailReceived($email));
+
+    expect(Ticket::find($email->fresh()->ticket_id)->description)
+        ->toBe('&lt;img src=x onerror=alert(1)&gt;');
+});
+
 it('resolves the department from the matching email channel', function () {
     Event::fake([InboundEmailProcessed::class]);
 
