@@ -48,7 +48,7 @@ class ProcessInboundEmail implements ShouldQueue
                 $comment = $this->commentService->addReply(
                     $ticket,
                     $user,
-                    $inboundEmail->text_body ?? $inboundEmail->html_body ?? '',
+                    $this->bodyAsHtml($inboundEmail),
                     [
                         'email_message_id' => $inboundEmail->message_id,
                     ]
@@ -61,7 +61,7 @@ class ProcessInboundEmail implements ShouldQueue
 
                 $ticket = $this->ticketService->create([
                     'title' => $inboundEmail->subject ?? __('service-desk::service-desk.tickets.no_subject'),
-                    'description' => $inboundEmail->text_body ?? $inboundEmail->html_body ?? '',
+                    'description' => $this->bodyAsHtml($inboundEmail),
                     'department_id' => $department?->id,
                     'source' => 'email',
                     'email_message_id' => $inboundEmail->message_id,
@@ -80,6 +80,19 @@ class ProcessInboundEmail implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * An email body is untrusted input that ends up rendered as HTML. Reduce it
+     * to plain text, escape it and keep its line breaks, so nothing the sender
+     * wrote is ever stored as markup.
+     */
+    protected function bodyAsHtml(InboundEmail $inboundEmail): string
+    {
+        $text = $inboundEmail->text_body
+            ?? html_entity_decode(strip_tags($inboundEmail->html_body ?? ''), ENT_QUOTES | ENT_HTML5);
+
+        return nl2br(e(trim($text)), false);
     }
 
     protected function resolveUser(InboundEmail $inboundEmail): ?Model
